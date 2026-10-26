@@ -1,0 +1,1385 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="法廷トラブル">
+<meta name="theme-color" content="#24344e">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>法廷トラブル・ポケット ― 自分用アプリ版</title>
+<style>
+  :root{--ink:#1d2735;--paper:#fbf8f1;--card:#fff;--navy:#24344e;--gold:#b9904f;--line:#e5ddd0;--muted:#6b7280;--chip:#f2ead9}
+  *{box-sizing:border-box} body{margin:0;background:var(--paper);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;line-height:1.75}
+  .wrap{max-width:760px;margin:0 auto;padding:18px 16px 48px}
+  header{padding:20px 4px 6px} .kicker{color:var(--gold);font-weight:700;letter-spacing:.12em;font-size:12px}
+  h1{font-family:serif;font-size:29px;line-height:1.35;margin:6px 0 4px;color:var(--navy)} .sub{color:var(--muted);font-size:14px}
+  .stats{position:sticky;top:0;background:rgba(251,248,241,.97);backdrop-filter:blur(6px);padding:10px 0;z-index:5;border-bottom:1px solid var(--line)}
+  .bar{height:7px;background:#e9e1d2;border-radius:99px;margin-top:8px;overflow:hidden}.bar i{display:block;height:100%;background:var(--gold);transition:width .4s}
+  .hintline{font-size:12px;color:var(--muted);margin-top:6px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px 20px;margin-top:18px;box-shadow:0 8px 28px rgba(40,35,20,.06)}
+  .phase{font-size:12px;font-weight:800;letter-spacing:.08em;color:var(--gold)}
+  .scene-title{font-family:serif;font-size:23px;color:var(--navy);margin:4px 0 10px}
+  .text{white-space:pre-wrap;font-size:16px}
+  .doc{background:#f7f2e7;border-left:4px solid var(--gold);padding:12px 14px;border-radius:10px;margin:14px 0;font-size:14px;white-space:pre-wrap}
+  .result{background:#f7f2e7;border-radius:12px;padding:12px 14px;margin-bottom:16px;font-size:14px;white-space:pre-wrap}
+  .notebox{background:#eef2f7;border:1px solid #cfd9e5;border-radius:14px;padding:15px 16px;margin-top:16px}
+  .notebox .ntitle{font-weight:800;color:var(--navy);margin-bottom:6px}.notebox .nbody{font-size:14px;white-space:pre-wrap}
+  .choices{display:grid;gap:10px;margin-top:20px}
+  button.choice{appearance:none;border:1.5px solid var(--navy);background:#fff;color:var(--navy);border-radius:14px;padding:14px 15px;text-align:left;font-size:15px;font-weight:700;line-height:1.5;cursor:pointer;width:100%}
+  button.choice small{display:block;font-weight:400;color:var(--muted);margin-top:3px}
+  .note{font-size:13px;color:var(--muted);margin-top:14px}
+  .amount{font-family:serif;font-size:38px;color:var(--navy);text-align:center;margin:10px 0}.verdict{border:2px solid var(--navy);border-radius:14px;padding:16px;background:#fdfcf8}
+  table{width:100%;border-collapse:collapse;font-size:14px;margin:12px 0} th,td{border-bottom:1px solid var(--line);padding:8px 6px;text-align:left} td:last-child,th:last-child{text-align:right;white-space:nowrap}
+  .tag{display:inline-block;background:var(--navy);color:#fff;font-size:12px;border-radius:99px;padding:2px 9px;margin-right:6px}
+  .review{border-top:1px solid var(--line);padding:10px 2px}.review b{color:var(--navy)} .review .rv{font-size:14px;color:#374151}
+  .know{background:#f7f2e7;border-radius:12px;padding:12px 16px;font-size:14px}.know li{margin:7px 0}
+  .qual{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.qchip{background:var(--chip);border:1px solid var(--line);padding:5px 11px;border-radius:999px;font-size:13px;font-weight:700}
+  .casecard{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;margin-top:14px;box-shadow:0 6px 20px rgba(40,35,20,.05);cursor:pointer}
+  .casecard:active{transform:scale(.995)}
+  .cc-top{display:flex;gap:12px;align-items:flex-start}.cc-icon{font-size:32px;line-height:1.2}
+  .cc-title{font-family:serif;font-size:20px;color:var(--navy);font-weight:700}
+  .cc-meta{font-size:13px;color:var(--muted)}
+  .cc-status{margin-left:auto;text-align:right;font-size:12px;font-weight:800;color:var(--gold);white-space:nowrap}
+  .cc-desc{font-size:14px;margin-top:8px}
+  .filters{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+  .fbtn{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 13px;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer}
+  .fbtn.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .toolbar{display:flex;gap:10px;margin-top:16px}.toolbar button{flex:1;border:1px solid var(--line);background:#fff;border-radius:12px;padding:10px;font-weight:700;color:var(--muted);cursor:pointer}
+  footer{color:var(--muted);font-size:12px;margin-top:22px;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="kicker">MY COURT STORIES ／ 自分用</div>
+    <h1>⚖️ 法廷トラブル・ポケット</h1>
+    <div class="sub">身近なトラブルを、発端から判決まで選択で追う小さな法廷ゲーム集</div>
+  </header>
+  <div class="stats" id="topbar"></div>
+  <main id="app"></main>
+  <footer>※ 収録事件はすべてフィクションです。金額計算や手続は学習用に簡略化しており、実際の法律相談・法的判断の代わりにはなりません。</footer>
+</div>
+
+<script>
+/* ============ 共通ノート ============ */
+const NOTES = {
+  record:{title:'📘 要所ノート ― 「記録に残る形」で伝える', body:`口頭のやり取りは早くて温度感も伝わりますが、あとで「言った／言っていない」になると弱くなります。メールや書面は、内容と日付がそのまま証拠になります。大事な交渉ほど、手段そのものがメッセージになります。`},
+  proof:{title:'📘 要所ノート ― 主張と証拠の「対応」', body:`裁判官が読むのは資料の量ではなく、「この主張は、この証拠で裏付けられている」という対応関係です。資料を全部出すと一見強そうですが、対応が分からない山は説得力を上げません。時系列で並べる、対応表を作る――地味な整理がそのまま説得力になります。`},
+  credibility:{title:'📘 要所ノート ― 供述の信用性', body:`裁判官の質問は知識を試す場ではなく、心証を作る場です。言えることと推測を分けて答える人は、他の部分も信用されやすくなります。裏付けの薄い断言が一つ崩れると、主張全体の信用が揺らぐことがあります。`},
+  negotiation:{title:'📘 要所ノート ― 交渉と和解の設計', body:`最初の提示額は、その後の話し合いの物差し（アンカー）になります。一部を認める譲歩は話を進めますが、認めた部分は戻ってきにくくなります。和解は「確実さ」と「金額」の交換で、判決は上振れも下振れもあり、時間もかかります。`},
+  procedure:{title:'📘 要所ノート ― 手続の選び方', body:`少額訴訟は60万円以下の金銭請求で使え、原則1回の審理で判決まで行きます（相手が望めば通常訴訟に移ることがあります）。通常訴訟はじっくり争える分、時間がかかります。民事調停は話し合いで、合意できなければ決着はつきません。`}
+};
+
+/* 条件で効果が変わる選択肢用の関数 */
+const FXFN = {
+  wallRule: s => ({cl: s.flags.guideline ? 2 : 1}),
+  wallPhoto: s => (s.flags.opponentPhoto ? {ev:2, cl:1} : {cl:1}),
+  floorPhoto: s => (s.flags.photo ? {tr:2, ev:1} : {tr:-1}),
+  dashcam: s => (s.flags.dashcam ? {ev:2, cl:1} : {ev:1}),
+  timesheet: s => (s.flags.logData ? {ev:2, cl:1} : {cl:1})
+};
+
+const CASES = [];
+/* ============ 事件1：敷金 ============ */
+CASES.push({
+  id:'shikikin', icon:'🏠', title:'返ってこない敷金', cat:'不動産', claim:160000, claimLabel:'敷金返還請求 160,000円', time:'約12分',
+  desc:'退去したら敷金がほぼ全額差し引かれ、追加請求まで来た。壁紙・床・クリーニングの負担をめぐる争い。',
+  notes:{ rule:{title:'📘 要所ノート ― 原状回復のルール', body:`民法621条は賃借人の原状回復義務を定めつつ、通常損耗や経年変化は対象から除いています。国土交通省の原状回復ガイドラインは法律そのものではありませんが、実務や裁判で広く参照されます。特約があっても、合意の内容や説明の仕方によって負担範囲は争い得ます。`},
+    evidence:{title:'📘 要所ノート ― 証拠は「入居時」と「退去時」の比較', body:`争いになるのは「その傷や汚れは、いつ付いたのか」です。効くのは退去時の写真だけではなく、入居時の状態との“対”です。写真の日付、部屋全体と傷の近景のセットが効いてきます。相手が持つ立会い写真も、こちらに有利に働くことがあります。`} },
+  knowledge:[
+    '<b>写真は「入居時と退去時の対」で残す。</b>日付が分かる形で、全体と傷の近景をセットで。',
+    '<b>原状回復のルールは民法621条。</b>通常損耗・経年変化は原則として借主負担ではない。',
+    '<b>敷金の返還は民法622条の2。</b>控除する側に、その根拠が問われる。',
+    '<b>特約があっても無制限ではない。</b>合意の内容や説明によって争える余地がある。',
+    '<b>少額訴訟は60万円以下の金銭請求の選択肢。</b>速さと引き換えの割り切りもある。'],
+  endings:{
+    settle70:{title:'交渉で和解（70,000円）', amount:70000, body:'裁判をせず70,000円の返還で終了。時間と手間は最小限だが、準備を積んだ分だけ高い和解もあり得たかもしれない。'},
+    settle90:{title:'交渉で和解（90,000円）', amount:90000, body:'逆提案で当初の提示から20,000円上がった90,000円で和解。準備の成果が金額に表れた形。'},
+    judgeSettle:{title:'裁判上の和解（110,000円）', amount:110000, body:'裁判官の和解案を受け入れ110,000円で終了。確実さと引き換えに、判決での上振れは置いていった。'}},
+  verdict:{mode:'deduction', base:160000, items:[
+    {label:'壁紙張替え', claimed:78000, stat:'evcl', hi:10, lo:7, amounts:[0,30000,60000], why:'経年変化の主張と状態の証拠が揃うほど、借主負担は認められにくくなった。'},
+    {label:'フローリング修理', claimed:42000, stat:'tr', hi:3, lo:1, amounts:[10000,25000,42000], why:'裁判官の質問への答え方と写真の裏付けが心証を分けた。'},
+    {label:'ハウスクリーニング', claimed:55000, stat:'cl', hi:99, lo:98, flagGood:'contract', flagMid:'demandPartial', amounts:[20000,30000,55000], why:'特約を確認していたか、交渉で一部を認めていたかが影響した。'}]},
+  scenes:{
+    intro:{phase:'発端', title:'精算書が届いた', text:`4年間住んだ1LDKを退去して1か月。管理会社から敷金の精算書が届きました。`, doc:`【敷金精算書】\n預かり敷金 160,000円\nハウスクリーニング 55,000円\n壁紙張替え 78,000円\nフローリング修理 42,000円\n差引 ▲15,000円（追加でお支払いください）`, choices:[{label:'精算の中身を、順番に確かめていく', next:'s2'}]},
+    s2:{phase:'交渉のはじめ', title:'最初の連絡をどう取るか', text:`壁紙は日焼けだと思っていたし、床の小さい傷も入居前からあった気がする。まず管理会社への連絡方法を決めます。`, noteKey:'record', choices:[
+      {label:'電話で担当者に直接聞く', small:'早い。手持ち資料の有無もその場で分かる', fx:{ev:1,tr:1}, flag:'phoneInfo', result:'担当者は「退去立会いの写真があります」と言いました。会話の記録は手元に残りませんでした。', review:'電話はスピードと情報収集に強い反面、記録が残らない。', next:'s3'},
+      {label:'メールで、項目ごとに根拠を尋ねる', small:'返信は遅いが、やり取りが残る', fx:{ev:1,cl:1}, flag:'record', result:'2日後、項目ごとの見積書が届きました。相手の根拠が文字で残りました。', review:'文書で尋ねると記録が残り、相手の根拠を固定できる。', next:'s3'},
+      {label:'内容証明郵便で返還を求める', small:'意思の強さは伝わる。相手も身構える', fx:{cl:2,tr:-1}, flags:['record','certified'], result:'管理会社の対応は丁寧になりましたが、空気は硬くなりました。', review:'内容証明は強い意思表示。関係は硬くなり、相手の防御も固くなる。', next:'s3'}]},
+    s3:{phase:'準備', title:'週末に確かめられるのは、ひとつだけ', text:`手元の資料と相手の資料。全部は確かめられません。どれを優先しますか。`, noteKey:'evidence', choices:[
+      {label:'スマホの奥にある入居時の写真を探す', small:'当時の状態を直接示せるかもしれない', fx:{ev:2}, flag:'photo', result:'入居直後の壁と床の写真が見つかりました。日付データも残っています。特約は未確認のままです。', review:'入居時写真は「いつからあったか」を示す強い材料。', next:'s4'},
+      {label:'契約書とクリーニング特約を読み直す', small:'ルール側を確認する', fx:{cl:2}, flag:'contract', result:'特約はありましたが金額の決め方は曖昧でした。部屋の状態の写真は手つかずです。', review:'特約の確認はクリーニング費の争いに直結する。', next:'s4'},
+      {label:'管理会社に立会いメモと写真の開示を求める', small:'相手が何を持っているかを知る', fx:{ev:1,cl:1}, flag:'opponentPhoto', result:'送られてきた立会い写真には、撮影日時がはっきりしないものが混じっていました。', review:'相手の資料は、その弱点が見える場所でもある。', next:'s4'}]},
+    s4:{phase:'ルールを調べる', title:'原状回復の考え方を押さえる', text:`「経年変化は借主負担にならないらしい」――自分のケースへの当てはめは、まだ曖昧です。`, noteKey:'rule', choices:[
+      {label:'自治体の無料法律相談で相談する', small:'自分のケースへの当てはめを聞ける', fx:{cl:2}, flag:'guideline', result:'「経年変化」「負担の範囲」「証拠」の3点で頭が整理されました。', review:'専門家への相談は当てはめと見通しが得られる。', next:'s5'},
+      {label:'ガイドラインを自分で精読しメモを作る', small:'根拠を自分の言葉で掴める', fx:{cl:1,ev:1}, flag:'guideline', result:'項目ごとのメモを作りました。当てはめの不安は少し残ります。', review:'自分で読むと理解は深まる。当てはめの確かさは相談に劣る。', next:'s5'},
+      {label:'消費生活センターに相談する', small:'交渉の進め方も聞ける', fx:{cl:1,tr:1}, result:'ルールに加えて、交渉の進め方の助言ももらえました。', review:'消費生活センターは交渉の実務に強い。', next:'s5'}]},
+    s5:{phase:'交渉', title:'こちらの要求を、どう置くか', text:`管理会社は「規定通りの精算です」の一点張り。要求の置き方で、その後が変わります。`, noteKey:'negotiation', choices:[
+      {label:'預けた16万円、全額の返還を求める', small:'原則からの主張。譲歩の余地も残る', fx:{cl:1}, flag:'demandFull', result:'相手の反応は硬いままでしたが、譲歩の余地は手元に残りました。', review:'全額請求はアンカーを高く置く方法。根拠の強さが伴うかが鍵。', next:'s6'},
+      {label:'クリーニング費の一部は認め、残りの返還を求める', small:'落としどころを示す', fx:{cl:1,tr:1}, flag:'demandPartial', result:'相手の態度が少し柔らかくなりました。「認めた部分」は戻らない前提で話が進みます。', review:'一部を認めると話は進む。認めた部分は原則戻らない。', next:'s6'},
+      {label:'金額は言わず、精算の再査定を求める', small:'相手の根拠を先に出させる', fx:{ev:1}, flag:'reaudit', result:'再査定で、壁紙の面積計算に小さな重複が見つかりました。', review:'根拠を開示させる進め方は情報で得をする。決着は遅くなる。', next:'s6'}]},
+    s6:{phase:'交渉', title:'相手からの提案', text:`数日後、管理会社から連絡がありました。`, doc:`「特別に、敷金から70,000円をお返しすることで終わりにしませんか」`, choices:[
+      {label:'70,000円で和解する', fx:{}, ending:'settle70', review:'早期和解は確実さと引き換えに金額を置いていく選択。'},
+      {label:'120,000円なら和解すると逆提案する', fx:{}, result:'相手は社内で持ち帰りました。', review:'逆提案は、準備した根拠があるほど通りやすくなる。', next:'s6b'},
+      {label:'見積の根拠資料を全部出してから判断すると返す', fx:{ev:1}, flag:'opponentPhoto', result:'出てきた立会い写真には、撮影日時が曖昧なものがありました。', review:'判断を保留して資料を出させると、裁判の材料も増える。', next:'s8'}]},
+    s6b:{phase:'交渉', title:'逆提案の結果', doc:`「90,000円までなら出せます。これが最終です。」`, text:`管理会社から返答がありました。`, choices:[
+      {label:'90,000円で和解する', fx:{}, ending:'settle90', review:'逆提案で提示を20,000円動かした和解。'},
+      {label:'断って、裁判を考える', fx:{}, review:'和解の確実さを手放し、判決に賭ける選択。', next:'s8'}]},
+    s8:{phase:'次の手続', title:'話し合いがまとまらないなら', text:`請求額は160,000円。次の手続にも選択肢があります。`, noteKey:'procedure', choices:[
+      {label:'少額訴訟を選ぶ', small:'60万円以下、原則1回で終わる手続', fx:{cl:1}, flag:'small', result:'争点と証拠をコンパクトにまとめることが求られました。', review:'少額訴訟は速さが魅力。相手の希望で通常訴訟に移ることもある。', next:'s9'},
+      {label:'通常訴訟を選ぶ', small:'時間はかかるが、じっくり争える', fx:{ev:1}, flag:'normal', result:'期日までの間に、追加資料を集める時間も生まれました。', review:'通常訴訟は証拠を積める。負担も増える。', next:'s9'},
+      {label:'民事調停を申し立てる', small:'裁判所で話し合いの場を作ってもらう', fx:{tr:1,cl:1}, flag:'mediation', result:'言い分は整理されましたが合意には届かず、整理された争点が残りました。', review:'調停は合意がなければ決着しない。争点整理の副産物がある。', next:'s9'}]},
+    s9:{phase:'書類作り', title:'裁判所へ出す資料の形', text:`提出期限が近づいてきました。資料の量そのものは、意外と武器になりません。`, noteKey:'proof', choices:[
+      {label:'写真を時系列で並べ、変化を中心に構成する', fx:{ev:2}, flag:'photoSet', result:'入居時と退去時が並び、変化の有無が一目で分かる形になりました。', review:'写真セットは状態の争いに強い。', next:'s10'},
+      {label:'主張と証拠の対応表を作り、書面中心に構成する', fx:{cl:2,ev:1}, flag:'chartSet', result:'主張の骨格が読み手に伝わりやすい形になりました。', review:'対応表は裁判官の読みやすさに直結する。', next:'s10'},
+      {label:'持っている資料を、とにかく全部出す', fx:{ev:1,cl:-1}, result:'分厚い資料になりましたが、どの紙が何の証拠かは読み手任せです。', review:'全部出すと漏れは防げるが、対応が見えないと説得力は上がらない。', next:'s10'}]},
+    s10:{phase:'相手の主張', title:'「壁紙の変色は生活汚れ」', text:`被告側は答弁書で主張しました。「変色は借主の生活汚れによるもので、張替えは借主負担だ」。あなたは禁煙で、ペットも飼っていません。反論の軸を選びます。`, choices:[
+      {label:'ガイドラインと経年変化の考え方を軸に反論する', small:'ルールから崩す', fxFn:'wallRule', result:'変色が時間の経過で起きることを、資料に沿って主張しました。', review:'ルール軸の反論は、ガイドラインを押さえているほど強くなる。', next:'s11'},
+      {label:'禁煙・ペットなし・換気などの生活実態を軸に反論する', small:'事実から崩す', fx:{ev:1,cl:1}, result:'生活実態を並べ、「生活汚れ」の中身を問う形になりました。', review:'生活実態の反論は具体的。裏付けの厚さが問われる。', next:'s11'},
+      {label:'相手の立会い写真の撮影条件や日時を軸に反論する', small:'相手の証拠から崩す', fxFn:'wallPhoto', result:'相手写真の日時の曖昧さを指摘しました。', review:'相手証拠への反論は、その弱点を知っている場合に効く。', next:'s11'}]},
+    s11:{phase:'裁判官からの質問', title:'フローリングの傷は、いつから？', text:`期日。裁判官が尋ねました。「原告、その床の傷が入居前からあったと、どこまで言えますか？」`, noteKey:'credibility', choices:[
+      {label:'「写真で確認できる範囲は入居時から。それ以外は分からない」と限定して答える', fx:{tr:2}, result:'裁判官は写真と見比べながら静かに頷きました。', review:'範囲を限定した答えは供述全体の信用を作る。', next:'s12'},
+      {label:'写真の位置と傷の形から、範囲を特定して説明する', fxFn:'floorPhoto', result:'裁判官は写真を拡大しながら説明を聞いています。', review:'写真に基づく特定は、写真がある場合に強く、ない場合は断言のリスクになる。', next:'s12'},
+      {label:'退去立会いでその傷を指摘されなかったことを持ち出す', fx:{tr:1,cl:1}, result:'立会いで指摘がなかった事実が、期日のやり取りに残りました。', review:'立会い時の指摘の有無は間接的な材料になる。', next:'s12'}]},
+    s12:{phase:'和解勧告', title:'判決か、和解か', preNoteKey:'negotiation', text:`審理の終わり、裁判官が和解を勧めました。「ここで歩み寄るなら、110,000円の返還でまとめる案を考えています」`, choices:[
+      {label:'和解案を受け入れる（110,000円返還）', fx:{}, ending:'judgeSettle', review:'裁判上の和解は確実さと引き換えに上振れを置いていく選択。'},
+      {label:'受け入れず、判決をもらう', fx:{}, ending:'verdict', review:'判決では証拠と心証の評価がそのまま金額になる。'}]}
+  }
+});
+/* ============ 事件2：残業代 ============ */
+CASES.push({
+  id:'zangyo', icon:'🌙', title:'消えた残業代', cat:'労働', claim:480000, claimLabel:'未払い残業代等請求 480,000円', time:'約11分',
+  desc:'毎月60時間を超える残業。でも給与には「固定残業代込み」の文字。退職後、タイムカードとチャットを手に請求する。',
+  notes:{ rule:{title:'📘 要所ノート ― 固定残業代の争い方', body:`労働基準法37条は、時間外労働に割増賃金の支払いを義務づけています。固定残業代（みなし残業）が認められるには、通常の賃金部分と割増部分が明確に区別でき、固定分を超えたら差額が払われる仕組みであることなどが問われます。\n労働時間かどうかは「使用者の指揮命令下にあったか」で判断され、タイムカード、PCログ、業務チャットの指示などが証拠になります。付加金（労基法114条）は、未払いと同額まで裁判所が命じられる制裁的なお金です。`},
+    laborProc:{title:'📘 要所ノート ― 労働審判という選択肢', body:`労働審判は、労働者と会社の個別の争いを、原則3回以内の期日で審理する手続です。審判官と労働審判員が入り、調停（話し合い）を試みながら、ダメなら審判が出ます。訴訟より速く、話し合いと判断の両方の性格を持つのが特徴です。`} },
+  knowledge:[
+    '<b>割増賃金の根拠は労働基準法37条。</b>固定残業代は「明確な区分」と「差額の支払い」が論点になる。',
+    '<b>労働時間は指揮命令下かどうか。</b>指示のチャットや納期の記録が証拠になる。',
+    '<b>付加金（労基法114条）は未払いと同額まで。</b>会社への制裁として裁判所が命じられる。',
+    '<b>賃金請求権の時効は当分の間3年。</b>古い分から順に消えていくので、退職後は早めの行動が大事。',
+    '<b>労働審判は原則3回以内。</b>速さと話し合いの両立を狙う手続。'],
+  endings:{
+    settle100:{title:'解決金で和解（100,000円）', amount:100000, body:'会社提案の解決金100,000円で終了。早いが、請求との差は大きいままだった。'},
+    settle180:{title:'交渉で和解（180,000円）', amount:180000, body:'逆提案で当初の提示から80,000円上がった和解。審判の不確実さは避けられた。'},
+    judgeSettle:{title:'労働審判の調停で成立（280,000円）', amount:280000, body:'審判委員会の案を受け入れ280,000円で終了。判決的な判断まで行かずに決着した。'}},
+  verdict:{mode:'award', items:[
+    {label:'残業代本体', claimed:360000, stat:'ev', hi:5, lo:3, amounts:[340000,240000,80000], why:'タイムカードやログで残業の量を示せたかが、本体の認定を分けた。'},
+    {label:'付加金', claimed:120000, stat:'cl', hi:6, lo:4, amounts:[100000,40000,0], why:'未払いの悪質さや固定残業の不明確さを主張できたかで、付加金の付き方が変わった。'}]},
+  scenes:{
+    intro:{phase:'発端', title:'最後の給与明細', text:`3年勤めた会社を退職した。毎月、夜10時過ぎまで残るのが当たり前だったのに、給与明細にはいつも同じ「固定残業代」の文字だけ。試しに自分の記録で計算すると、未払いの額は思っていたより大きかった。`, doc:`【自分のメモによる試算】\n残業代本体　約360,000円\n付加金　　　最大120,000円\n合計　　　　480,000円`, choices:[{label:'会社に請求する準備を始める', next:'s2'}]},
+    s2:{phase:'最初の一歩', title:'どこから手をつけるか', text:`会社は「固定残業代で支払い済み」と言いそうだ。最初の一歩を選びます。`, noteKey:'record', choices:[
+      {label:'会社へメールで、給与計算の根拠と明細を求める', small:'記録が残る形で', fx:{ev:1,cl:1}, flag:'record', result:'会社から「就業規則通りです」という短い返信が来ました。計算の中身は出てきませんでした。', review:'根拠を求める書面は記録になる。相手が中身を出さない事実も材料になる。', next:'s3'},
+      {label:'労働基準監督署に相談に行く', small:'公的な窓口から入る', fx:{cl:1,tr:1}, result:'労基署では「まず証拠を集めること」と助言されました。すぐに会社へ動く様子はありません。', review:'労基署は是正の窓口だが、自分の未払いを取り戻す手続とは別。', next:'s3'},
+      {label:'社長に直接、電話で支払いを求める', small:'早いが、記録は残らない', fx:{tr:-1,cl:1}, result:'社長は「感情的にならないで」と言い、具体的な話は濁されました。', review:'直接交渉は速いが、言った内容が残らず、相手の防御も固くなる。', next:'s3'}]},
+    s3:{phase:'証拠集め', title:'残業を示すものを探す', text:`タイムカードは会社の管理で、手元にはありません。自分の側に残っているものを探します。`, choices:[
+      {label:'業務チャットの履歴とPCのログを時系列に整理する', small:'指示と作業の跡を辿る', fx:{ev:2}, flag:'logData', result:'上司からの夜間の指示と、成果物の送信時刻が並びました。残業の姿が見えてきます。', review:'チャットとログは「指揮命令下」を示す材料になる。', next:'s4'},
+      {label:'会社にタイムカードの開示を求める', small:'相手の記録を取りに行く', fx:{ev:1,cl:1}, result:'会社は渋りましたが、一部期間の記録が出てきました。自分のメモと食い違う日もあります。', review:'相手の記録は強い証拠。食い違い自体も争点になる。', next:'s4'},
+      {label:'記憶をもとに、残業の時系列メモを自分で作る', small:'今ある記憶を固定する', fx:{cl:1}, result:'大まかな流れは書けましたが、日ごとの時刻は曖昧な部分が残りました。', review:'自分のメモは主張の土台にはなるが、客観的な記録より弱い。', next:'s4'}]},
+    s4:{phase:'ルールを調べる', title:'「固定残業代込み」の意味', text:`給与明細の「固定残業代 30時間分」という表示。これで本当に払い済みになるのかが核心です。`, noteKey:'rule', choices:[
+      {label:'弁護士の無料相談で、固定残業の有効性を聞く', fx:{cl:2}, result:'「区分の明確さと、超過分の支払い実績が論点です」と整理されました。', review:'固定残業の争いは、契約と明細の読み方が中心になる。', next:'s5'},
+      {label:'就業規則と雇用契約書を自分で読み直す', fx:{cl:1,ev:1}, result:'契約書には固定残業の時間数の記載はありましたが、超過時の扱いは書かれていませんでした。', review:'規則の沈黙は、会社側の主張の弱点になり得る。', next:'s5'}]},
+    s5:{phase:'交渉', title:'請求の置き方', text:`会社に請求内容を伝えます。`, noteKey:'negotiation', choices:[
+      {label:'本体と付加金を含め、480,000円を請求する', fx:{cl:1}, flag:'demandFull', result:'会社は「到底飲めない」と反応しましたが、交渉の土俵はできました。', review:'付加金まで含めた請求は、本気度の表示にもなる。', next:'s6'},
+      {label:'まず本体の残業代だけを請求する', fx:{cl:1,tr:1}, flag:'demandPartial', result:'会社は少し態度を軟化させましたが、支払う姿勢までは見せません。', review:'請求を絞ると話は進みやすい。譲った部分は戻りにくい。', next:'s6'},
+      {label:'金額より先に、計算根拠の開示を求める', fx:{ev:1}, result:'会社が出してきた計算には、固定残業の時間数の根拠が書かれていませんでした。', review:'根拠の開示要求は、相手の弱点の確認になる。', next:'s6'}]},
+    s6:{phase:'交渉', title:'会社からの提案', doc:`「解決金として100,000円をお支払いします。本件はこれで終了ということで」`, text:`会社から提案が来ました。`, choices:[
+      {label:'100,000円で和解する', fx:{}, ending:'settle100', review:'早期の和解は、金額より確実さを取る選択。'},
+      {label:'300,000円なら和解すると逆提案する', fx:{}, result:'会社が持ち帰りました。', review:'逆提案は証拠の厚みがあるほど通りやすくなる。', next:'s6b'},
+      {label:'断って、手続を考える', fx:{}, review:'会社の土俵での交渉を終える選択。', next:'s8'}]},
+    s6b:{phase:'交渉', title:'逆提案の結果', doc:`「180,000円が限度です」`, text:`会社から返答がありました。`, choices:[
+      {label:'180,000円で和解する', fx:{}, ending:'settle180', review:'当初の提示から80,000円動かした和解。'},
+      {label:'断って、手続を考える', fx:{}, review:'和解を手放し、判断の場に進む選択。', next:'s8'}]},
+    s8:{phase:'手続', title:'どの場で争うか', text:`労働の争いには、訴訟以外の場もあります。`, noteKey:'laborProc', choices:[
+      {label:'労働審判を申し立てる', small:'原則3回以内。話し合いと判断の両方の性格', fx:{cl:1}, flag:'laborTribunal', result:'申立てでは、争点を絞った書面が求られました。', review:'労働審判は速さが魅力。準備を絞る必要がある。', next:'s9'},
+      {label:'通常訴訟を起こす', small:'じっくり争えるが時間がかかる', fx:{ev:1}, result:'期日までの間に、追加の記録を集める時間が生まれました。', review:'通常訴訟は証拠を積める。負担も増える。', next:'s9'},
+      {label:'労働局のあっせんを使う', small:'話し合いの仲介。相手が出てこない場合もある', fx:{tr:1,cl:1}, result:'あっせんでは言い分は整理されましたが、合意には届きませんでした。', review:'あっせんは合意がなければ決着しない。争点整理は残る。', next:'s9'}]},
+    s9:{phase:'証拠', title:'審理に出す記録の形', text:`残業の「量」と「指示」を、どう示すか。`, noteKey:'proof', choices:[
+      {label:'チャットとPCログを時系列で並べ、指示と作業を対応させる', fxFn:'timesheet', result:'夜間の指示と作業の跡が、線でつながる形になりました。', review:'指示と作業の対応は「指揮命令下」の立証の核心。', next:'s10'},
+      {label:'タイムカードの記録を中心に出す', fx:{ev:1,cl:1}, result:'打刻の記録は客観的ですが、休憩や持ち帰りの部分は説明が必要です。', review:'タイムカードは強いが、それだけで労働時間の全ては決まらない。', next:'s10'},
+      {label:'自分の時系列メモを中心に出す', fx:{cl:1}, result:'流れは伝わりますが、時刻の裏付けは弱いままです。', review:'自分のメモだけでは、相手の記録に押されやすい。', next:'s10'}]},
+    s10:{phase:'相手の主張', title:'「勝手に残っていただけ」', text:`会社側は主張しました。「残業は指示していない。本人が勝手に残っていたもので、固定残業代の範囲内だ」。反論の軸を選びます。`, choices:[
+      {label:'納期と上司の指示チャットを示し、指揮命令下だったと反論する', fx:{cl:2}, result:'「頼む、明日の朝までに」という指示の記録が並びました。', review:'指示の記録は「勝手に残業」への正面の反論になる。', next:'s11'},
+      {label:'固定残業の区分が曖昧で、超過分も払われていないと反論する', fx:{cl:1,ev:1}, result:'給与明細上で通常賃金と割増部分が分かれていない点が争点になりました。', review:'固定残業の有効性への反論は、金額計算の土台を崩す。', next:'s11'},
+      {label:'業務量そのものが所定時間では終わらない量だったと反論する', fx:{ev:1,cl:1}, result:'配布資料の量と納期の一覧が、業務量の多さを示しました。', review:'業務量の主張は、黙示の指示を裏付ける間接材料になる。', next:'s11'}]},
+    s11:{phase:'審判員からの質問', title:'「残業が必要だったと、どう示しますか？」', text:`期日。労働審判員が尋ねました。`, noteKey:'credibility', choices:[
+      {label:'納期の指示と成果物の送信時刻を結びつけて説明する', fx:{tr:2}, result:'審判員は記録を見比べながら頷きました。', review:'事実同士を結びつけた説明は信用されやすい。', next:'s12'},
+      {label:'「毎日必要でした」とまとめて答える', fx:{tr:-1}, result:'「日ごとに根拠はありますか」と重ねて聞かれました。', review:'まとめすぎた答えは、裏付けを問われると弱くなる。', next:'s12'},
+      {label:'分からない日は「記録がありません」と正直に分ける', fx:{tr:1,ev:1}, result:'記録のある日とない日が切り分けられ、かえって全体が明確になりました。', review:'分からない部分を分ける答えは、記録のある部分の信用を高める。', next:'s12'}]},
+    s12:{phase:'調停案', title:'和解か、審判か', preNoteKey:'negotiation', text:`審理の終わり、案が示されました。「280,000円の支払いで調停を成立させる案を考えています」`, choices:[
+      {label:'案を受け入れる（280,000円）', fx:{}, ending:'judgeSettle', review:'調停成立は確実で速い。上振れは置いていく選択。'},
+      {label:'受け入れず、審判をもらう', fx:{}, ending:'verdict', review:'審判では証拠の評価がそのまま金額になる。'}]}
+  }
+});
+
+/* ============ 事件3：交通事故 ============ */
+CASES.push({
+  id:'kotsu', icon:'🚗', title:'青信号の交差点', cat:'交通事故', claim:380000, claimLabel:'損害賠償請求 380,000円', time:'約11分',
+  desc:'交差点での出会い頭。相手の保険会社は「過失3割はあなたにも」と言う。ドライブレコーダーの映像が鍵になる。',
+  notes:{ rule:{title:'📘 要所ノート ― 過失割合の考え方', body:`交通事故の過失割合は、感覚ではなく、事故の類型ごとに整理された基準（実務では「別冊判例タイムズ38号」の基準が広く使われます）をもとに、速度や注意義務などの修正要素を加えて決まります。\n保険会社の提示は「決定」ではなく交渉の出発点です。信号、一時停止の有無、回避できたかどうかが、割合を動かす材料になります。物損では、修理費の実額と代車費用も争点になります。`} },
+  knowledge:[
+    '<b>過失割合は類型＋修正要素で決まる。</b>保険会社の最初の提示は決定ではない。',
+    '<b>ドラレコは最強クラスの証拠。</b>事故直後に上書きされないよう、まず保存する。',
+    '<b>青信号でも注意義務はゼロではない。</b>相手の違反の重さとの比較で割合が動く。',
+    '<b>交通事故紛争処理センター等のADRもある。</b>訴訟以外の解決の場として使える。',
+    '<b>修理費は実額の立証が要る。</b>見積書と修理内容の対応が金額を決める。'],
+  endings:{
+    settle266:{title:'示談で解決（266,000円）', amount:266000, body:'過失7対3を前提にした266,000円で示談。速いが、割合への納得は残る形だった。'},
+    settle285:{title:'交渉で示談（285,000円）', amount:285000, body:'交渉で当初の提示から19,000円上がった示談。レコーダーの存在が交渉を動かした。'},
+    judgeSettle:{title:'裁判上の和解（310,000円）', amount:310000, body:'裁判官の和解案310,000円で終了。判決のリスクを避けた形。'}},
+  verdict:{mode:'award', items:[
+    {label:'修理費への相手方負担分', claimed:350000, stat:'evcl', hi:9, lo:6, amounts:[315000,245000,140000], why:'信号と相手の違反、そしてレコーダーで事故状況を示せたかが過失割合を分けた。'},
+    {label:'代車費用', claimed:30000, stat:'cl', hi:5, lo:3, amounts:[30000,15000,0], why:'代車の必要性と金額の相当性を示せたかで認められ方が変わった。'}]},
+  scenes:{
+    intro:{phase:'発端', title:'保険会社からの電話', text:`夕方の交差点。青信号で進んだところ、左から一時停止を無視した車が出てきた。怪我はなかったが、車の左前は大きくへこんだ。数日後、相手の保険会社から電話が来た。`, doc:`「今回の事故ですが、過失割合は あなた3割、相手7割 で考えています。修理費と代車費用 380,000円のうち、お支払いは 266,000円 になります」`, choices:[{label:'その場で答えず、根拠を確かめることにする', next:'s2'}]},
+    s2:{phase:'交渉のはじめ', title:'提示への向き合い方', text:`「3割」と言われても、自分は青信号だった。提示への向き合い方を決めます。`, noteKey:'record', choices:[
+      {label:'割合の根拠を、書面で求める', small:'基準と理由を文字で固定する', fx:{cl:1,ev:1}, result:'届いた書面には、類型番号と「速度」を理由にした修正の記載がありました。', review:'根拠を書面で求めると、争うべき修正要素が見えてくる。', next:'s3'},
+      {label:'電話で「青信号なのに3割はおかしい」と伝える', small:'早いが、根拠は手元に残らない', fx:{tr:1}, result:'担当者は「社内基準です」と繰り返すだけで、話は進みませんでした。', review:'結論だけの抗議では、割合の根拠に届かない。', next:'s3'},
+      {label:'まず自分の保険会社に相談する', small:'味方の窓口から入る', fx:{cl:1}, result:'自分の保険会社からは「レコーダーを先に確保してください」と助言されました。', review:'自分の保険会社は助言の窓口になる。示談交渉そのものは自分で行う場面も多い。', next:'s3'}]},
+    s3:{phase:'証拠集め', title:'事故の姿を固定する', text:`割合を動かすのは、事故の「姿」を示す材料です。`, choices:[
+      {label:'ドライブレコーダーの映像を、まず保存する', small:'信号と相手の出方を直接示せる', fx:{ev:2}, flag:'dashcam', result:'映像には青信号と、左から出てくる相手の車がはっきり写っていました。ただし自分の速度が少し速く見える場面もあります。', review:'レコーダーは信号と動きを直接示す。自分に不利な部分も含めて証拠になる。', next:'s4'},
+      {label:'現場の信号サイクルと見通しを確かめる', small:'状況の裏付けを取る', fx:{ev:1,cl:1}, result:'相手側には一時停止の標識があり、こちらの進路の見通しは限られていました。', review:'現場の状況は、注意義務の程度を考える材料になる。', next:'s4'},
+      {label:'修理工場に見積書と損傷の意見をもらう', small:'金額側の土台を固める', fx:{cl:1,ev:1}, result:'損傷の位置が、相手車両の出方と一致することが工場から示されました。', review:'損傷の位置は事故態様の裏付けにも、修理費の根拠にもなる。', next:'s4'}]},
+    s4:{phase:'ルールを調べる', title:'過失割合はどう決まるのか', text:`「7対3」は、誰がどう決めた数字なのか。`, noteKey:'rule', choices:[
+      {label:'過失割合の基準資料を調べ、自分の事故の類型を確認する', fx:{cl:2}, result:'類型上は相手の違反が重く、自分の速度が修正要素になる構造だと分かりました。', review:'類型を掴むと、争うべき点が「速度の修正」だと絞れる。', next:'s5'},
+      {label:'弁護士の無料相談で見通しを聞く', fx:{cl:1,tr:1}, result:'「レコーダーがあれば、割合は動かせる余地があります」と見通しが示されました。', review:'見通しを聞くと、交渉で引くべきでないラインが見える。', next:'s5'}]},
+    s5:{phase:'交渉', title:'こちらの割合の主張', text:`保険会社に、こちらの考える割合を伝えます。`, noteKey:'negotiation', choices:[
+      {label:'過失9対1を主張する', small:'相手の一時停止違反を全面に', fx:{cl:1}, flag:'demandFull', result:'保険会社は「速度の点が」と譲りませんでしたが、交渉の幅は残りました。', review:'高い主張はアンカーになる。修正要素への備えが要る。', next:'s6'},
+      {label:'過失8対2なら応じる用意があると伝える', small:'落としどころを示す', fx:{cl:1,tr:1}, flag:'demandPartial', result:'担当者の口調が少し変わりました。ただし提示額はまだ動きません。', review:'落としどころの提示は話を進める。引いた分は戻りにくい。', next:'s6'},
+      {label:'割合より先に、修理費の実額確定を求める', small:'金額の土台から固める', fx:{ev:1}, result:'修理費の内訳が固まり、争いは割合の問題に絞られました。', review:'金額の土台が固まると、争点は割合だけに絞れる。', next:'s6'}]},
+    s6:{phase:'交渉', title:'保険会社の最終提示', doc:`「266,000円が当社としての回答です」`, text:`提示は動きませんでした。`, choices:[
+      {label:'266,000円で示談する', fx:{}, ending:'settle266', review:'示談は速さと引き換えに、割合への納得を置いていく選択。'},
+      {label:'304,000円（過失8対2）なら示談すると逆提案する', fx:{}, result:'担当者は上席と相談することになりました。', review:'逆提案はレコーダー等の材料があるほど通りやすい。', next:'s6b'},
+      {label:'断って、次の手続を考える', fx:{}, review:'保険会社の土俵を離れる選択。', next:'s8'}]},
+    s6b:{phase:'交渉', title:'逆提案の結果', doc:`「285,000円までが限度です」`, text:`保険会社から返答がありました。`, choices:[
+      {label:'285,000円で示談する', fx:{}, ending:'settle285', review:'当初の提示から19,000円動かした示談。'},
+      {label:'断って、次の手続を考える', fx:{}, review:'示談の確実さを手放す選択。', next:'s8'}]},
+    s8:{phase:'手続', title:'訴訟以外の場もある', text:`物損の争いには、裁判以外の解決の場もあります。`, noteKey:'procedure', choices:[
+      {label:'交通事故紛争処理センターの和解あっ旋を使う', small:'中立の場での話し合い', fx:{cl:1,tr:1}, result:'あっ旋では双方の資料が並びましたが、合意には届きませんでした。争点は絞られました。', review:'ADRは合意がなければ決着しない。資料が整理される副産物がある。', next:'s9'},
+      {label:'少額訴訟を選ぶ', small:'38万円の請求は対象範囲内', fx:{cl:1}, result:'争点と証拠をコンパクトにまとめることが求られました。', review:'少額訴訟は速い。複雑な事故では通常訴訟に移ることもある。', next:'s9'},
+      {label:'通常訴訟を起こす', small:'じっくり争える', fx:{ev:1}, result:'期日までの間に、現場の資料を追加で集める時間が生まれました。', review:'通常訴訟は証拠を積める。時間もかかる。', next:'s9'}]},
+    s9:{phase:'証拠', title:'審理に出す中心資料', text:`割合を決めるのは、事故の再現です。`, noteKey:'proof', choices:[
+      {label:'ドラレコ映像を中心に、信号と双方の動きを説明する', fxFn:'dashcam', result:'映像と説明が対応し、事故の姿が共有されました。', review:'映像は強いが、自分の不利な部分も含めて説明する姿勢が要る。', next:'s10'},
+      {label:'現場図と信号サイクルを中心に構成する', fx:{ev:1,cl:1}, result:'状況の説明は丁寧になりましたが、動きそのものの迫力は映像に劣ります。', review:'現場図は状況の裏付けになる。動きの立証は映像が中心。', next:'s10'},
+      {label:'修理見積と損傷写真を中心に出す', fx:{cl:1,ev:1}, result:'金額の根拠は固まりましたが、割合の争いには直接届きません。', review:'金額の証拠と、割合の証拠は役割が違う。', next:'s10'}]},
+    s10:{phase:'相手の主張', title:'「あなたの速度が事故を大きくした」', text:`相手側は主張しました。「原告にも速度超過があり、回避できたはずだ」。反論の軸を選びます。`, choices:[
+      {label:'レコーダーの距離とタイミングから、回避は困難だったと反論する', fx:{cl:2}, result:'出会い頭までの時間の短さが、数字で示されました。', review:'回避可能性は、距離と時間で語ると具体的になる。', next:'s11'},
+      {label:'相手の一時停止義務違反の重さを軸に反論する', fx:{cl:1,ev:1}, result:'義務違反の重さの比較が、割合の中心の争いになりました。', review:'割合は違反の重さの比較。相手の違反を軸にするのは正面の争い方。', next:'s11'},
+      {label:'速度は制限内だったことを、記録で示す', fx:{ev:2}, result:'速度の記録が出て、修正要素の一つが小さくなりました。', review:'修正要素を一つずつ消す作業が、割合を動かす。', next:'s11'}]},
+    s11:{phase:'裁判官からの質問', title:'「青信号でも、注意義務はありますね？」', text:`期日。裁判官が尋ねました。`, noteKey:'credibility', choices:[
+      {label:'「あります。ただ見通しの範囲で尽くし、相手の飛び出しは予測できませんでした」と答える', fx:{tr:2}, result:'裁判官はレコーダーの映像に目を戻しました。', review:'義務を認めた上で事情を述べる答えは、信用と両立しやすい。', next:'s12'},
+      {label:'「青信号なので、こちらに注意義務はありません」と断言する', fx:{tr:-1}, result:'裁判官から「交差点では一般に減速や確認も問題になりますね」と返されました。', review:'断言しすぎると、一般論で押し戻されやすい。', next:'s12'},
+      {label:'見通しの悪さと、ブレーキを踏んだタイミングを具体的に答える', fx:{tr:1,cl:1}, result:'具体的な答えが、映像の内容と合っていることが確認されました。', review:'具体性と映像の一致は、心証を強くする。', next:'s12'}]},
+    s12:{phase:'和解勧告', title:'判決か、和解か', preNoteKey:'negotiation', text:`裁判官から和解案が示されました。「310,000円の支払いでまとめる案を考えています」`, choices:[
+      {label:'和解案を受け入れる（310,000円）', fx:{}, ending:'judgeSettle', review:'和解は確実。割合への評価の上振れは置いていく。'},
+      {label:'受け入れず、判決をもらう', fx:{}, ending:'verdict', review:'判決では過失割合の評価がそのまま金額になる。'}]}
+  }
+});
+/* ============ 事件4：クーリングオフ ============ */
+CASES.push({
+  id:'cooling', icon:'🏡', title:'訪問販売のリフォーム', cat:'消費者', claim:270000, claimLabel:'手付金返還等請求 270,000円', time:'約11分',
+  desc:'訪問販売で外壁塗装を契約し、手付金25万円を払った。5日後に冷静になって解約を申し出たら「実費を引く」と言われた。',
+  notes:{ rule:{title:'📘 要所ノート ― クーリングオフの仕組み', body:`訪問販売では、特定商取引法9条により、契約書面を受け取った日から8日以内なら、書面や電磁的記録で通知して無条件に解約できます（クーリングオフ）。効力は「通知を発した時」に生じます。\nクーリングオフをすると、事業者は損害賠償や違約金を請求できません。書面に法定の記載がなかったり不備があったりすると、8日の期間がそもそも始まらない場合もあります。期限が命の制度なので、まず止める・すぐ出す、が大切です。`} },
+  knowledge:[
+    '<b>訪問販売のクーリングオフは特定商取引法9条。</b>書面受領から8日以内、通知は発した日に効力が生じる。',
+    '<b>クーリングオフに違約金はない。</b>事業者は損害賠償・違約金を請求できないのが原則。',
+    '<b>契約書面の不備は期間に影響する。</b>法定記載がないと、8日が始まらない場合がある。',
+    '<b>期限ものは「まず止める、すぐ残す」。</b>電話で着工を止め、通知は記録の残る形で出す。',
+    '<b>消費生活センターは消費者の窓口。</b>あっせんを含め、事業者との間に入ることがある。'],
+  endings:{
+    settle170:{title:'実費控除で和解（170,000円）', amount:170000, body:'実費8万円を認め、170,000円の返還で和解。速いが、クーリングオフの原則からすると譲った形。'},
+    settle210:{title:'交渉で和解（210,000円）', amount:210000, body:'逆提案で当初の提示から40,000円上がった和解。'},
+    judgeSettle:{title:'裁判上の和解（240,000円）', amount:240000, body:'裁判官の和解案240,000円で終了。ほぼ請求に近い水準でまとまった。'}},
+  verdict:{mode:'award', items:[
+    {label:'手付金の返還', claimed:250000, stat:'cl', hi:6, lo:4, amounts:[250000,170000,50000], why:'クーリングオフの要件（期間・通知・書面不備）を主張できたかが本体を分けた。'},
+    {label:'通知費用等の賠償', claimed:20000, stat:'ev', hi:4, lo:2, amounts:[15000,5000,0], why:'通知を発した記録や領収書を残せていたかで、細かい費用の認められ方が変わった。'}]},
+  scenes:{
+    intro:{phase:'発端', title:'玄関先の3時間', text:`日曜の午後、訪問販売の営業が来た。「今だけのキャンペーン価格」と言われ、夜まで話し込んで外壁塗装の契約を結び、手付金250,000円を払った。数日して冷静になると、金額も説明も腑に落ちない。契約から5日目――。`, doc:`【契約メモ】\n工事代金 1,200,000円\n手付金 250,000円（支払済）\n契約書面 受領済（記載に一部不明な点）`, choices:[{label:'解約できるかどうかを確かめる', next:'s2'}]},
+    s2:{phase:'解約の意思表示', title:'期限のある制度', text:`訪問販売にはクーリングオフがあると聞いたことがある。期限が迫る中で、まず何をしますか。`, noteKey:'record', choices:[
+      {label:'電話で解約と着工停止を伝え、すぐ書面も出す', small:'即効性と記録の両方を取る', fx:{cl:1,ev:1}, flag:'noticeFast', result:'電話で工事は止まりました。その日のうちに書面も発送しました。', review:'期限ものは速さと記録の両立が理想。電話だけでも書面だけでも弱点が残る。', next:'s3'},
+      {label:'内容証明郵便だけで通知する', small:'記録は確実。届くまで時間はかかる', fx:{cl:1,ev:1}, flags:['record'], result:'通知は発送できましたが、業者が受け取るまでに日数がかかりました。発信日に効力が生じる点が救いです。', review:'クーリングオフは発信主義。記録の確実さが武器になる。', next:'s3'},
+      {label:'まず電話だけで解約を伝える', small:'早いが、内容の記録は残らない', fx:{tr:1}, result:'業者は「聞きました」と言いましたが、後日「正式な通知は来ていない」と言い始めました。', review:'口頭だけだと、意思表示の内容と日付が争いになりやすい。', next:'s3'}]},
+    s3:{phase:'証拠集め', title:'書面と経緯を確かめる', text:`解約を伝えた後、返金の話になります。手元の材料を確かめます。`, choices:[
+      {label:'契約書面の記載を、法定事項と照らしてチェックする', small:'赤字の記載や日付の有無を見る', fx:{cl:2}, flag:'docFlaw', result:'クーリングオフに関する記載の一部が、法定の形式を満たしていない可能性が見つかりました。', review:'書面の不備は、期間の起算そのものを動かす論点になる。', next:'s4'},
+      {label:'勧誘時のやり取りを時系列メモに残す', small:'玄関先で何を言われたか', fx:{ev:1,cl:1}, result:'「今日だけ」「近所の実績」などの説明の流れがメモに残りました。', review:'勧誘の経緯は、説明の問題を争う材料になる。', next:'s4'},
+      {label:'支払いの領収書と発送控えを揃える', small:'日付の土台を固める', fx:{ev:2}, result:'契約日、支払日、通知の発送日が一本の線でつながりました。', review:'日付の線は、期間が争点の事件では土台になる。', next:'s4'}]},
+    s4:{phase:'ルールを調べる', title:'8日という期限', text:`クーリングオフができる期間と、その効果を確認します。`, noteKey:'rule', choices:[
+      {label:'消費生活センターで、期間と効果を確認する', fx:{cl:2}, result:'「通知を発していれば効力は生じ、違約金は請求されません」と整理されました。', review:'消費生活センターは特商法の実務に明るい。', next:'s5'},
+      {label:'特定商取引法の条文を自分で読む', fx:{cl:1,ev:1}, result:'9条の文言と、書面の記載事項を確認しました。当てはめには少し不安が残ります。', review:'条文を自分で読むと主張の骨格は作れる。', next:'s5'}]},
+    s5:{phase:'交渉', title:'返金の要求の置き方', text:`業者に返金を求めます。`, noteKey:'negotiation', choices:[
+      {label:'手付金の全額返還を求める', fx:{cl:1}, flag:'demandFull', result:'業者は「実費がかかっている」と譲りませんが、交渉は始まりました。', review:'全額要求は制度の原則に沿う。相手の実費主張への備えが要る。', next:'s6'},
+      {label:'実費の明細が出れば、その分は検討すると伝える', fx:{cl:1,tr:1}, flag:'demandPartial', result:'業者は明細を出す姿勢を見せました。明細の中身が次の争いになります。', review:'明細を求める姿勢は、相手の金額の根拠を固定させる。', next:'s6'},
+      {label:'まず契約が解約済みであることの確認を求める', fx:{ev:1}, result:'解約の効力そのものについては、業者も争わない姿勢になりました。', review:'土台の事実を先に確定させると、争点は金額だけに絞れる。', next:'s6'}]},
+    s6:{phase:'交渉', title:'業者からの提案', doc:`「資材の発注など実費が80,000円かかっています。170,000円の返還でお願いできませんか」`, text:`業者から提案が来ました。`, choices:[
+      {label:'170,000円で和解する', fx:{}, ending:'settle170', review:'実費を認める和解は速いが、制度の原則からは譲る形。'},
+      {label:'全額でなければ和解しないと逆提案する', fx:{}, result:'業者が社内で検討することになりました。', review:'逆提案は、制度の根拠が強いほど通りやすい。', next:'s6b'},
+      {label:'断って、手続を考える', fx:{}, review:'交渉の場を離れる選択。', next:'s8'}]},
+    s6b:{phase:'交渉', title:'逆提案の結果', doc:`「210,000円までなら返還します」`, text:`業者から返答がありました。`, choices:[
+      {label:'210,000円で和解する', fx:{}, ending:'settle210', review:'当初の提示から40,000円動かした和解。'},
+      {label:'断って、手続を考える', fx:{}, review:'確実さを手放し、判断の場へ進む選択。', next:'s8'}]},
+    s8:{phase:'手続', title:'どの場で争うか', text:`請求は270,000円。場の選択肢があります。`, noteKey:'procedure', choices:[
+      {label:'消費生活センターのあっせんを使う', small:'事業者との間に入ってもらう', fx:{tr:1,cl:1}, result:'あっせんでは双方の言い分が整理されましたが、合意には届きませんでした。', review:'あっせんは合意が前提。整理された論点は次に使える。', next:'s9'},
+      {label:'少額訴訟を選ぶ', small:'27万円の請求は対象内', fx:{cl:1}, result:'争点をコンパクトにまとめることが求られました。', review:'少額訴訟は速さが魅力。', next:'s9'},
+      {label:'通常訴訟を起こす', small:'じっくり争える', fx:{ev:1}, result:'追加の資料を集める時間が生まれました。', review:'通常訴訟は証拠を積める。時間もかかる。', next:'s9'}]},
+    s9:{phase:'証拠', title:'審理に出す中心資料', text:`争いの中心は、制度の要件を満たすかどうかです。`, noteKey:'proof', choices:[
+      {label:'契約書面の不備の箇所を一覧にして出す', fx:{cl:2,ev:1}, result:'不備の箇所と、条文の要求が対応する形になりました。', review:'書面不備の主張は、条文との対応が見える形が効く。', next:'s10'},
+      {label:'通知の発送記録と日付の流れを中心に出す', fx:{ev:2}, result:'契約から通知までの日付が、一目で分かる形になりました。', review:'期間の争いは日付の線が中心になる。', next:'s10'},
+      {label:'勧誘時のメモを中心に出す', fx:{cl:1,ev:1}, result:'勧誘の様子は伝わりますが、解約の効力の話とは距離があります。', review:'経緯の資料は補助的。要件の資料が中心になる。', next:'s10'}]},
+    s10:{phase:'相手の主張', title:'「実費がかかっている」', text:`業者側は主張しました。「資材を発注済みで、実費がかかっている。その分は引くべきだ」。反論の軸を選びます。`, choices:[
+      {label:'クーリングオフでは損害賠償・違約金を請求できないと反論する', fx:{cl:2}, result:'制度の原則が正面から示されました。', review:'特商法9条の効果は、この事件の正面の武器。', next:'s11'},
+      {label:'実費の明細と発注の証拠を求める', fx:{ev:1,cl:1}, result:'業者が出した明細には、契約前の発注分が混じっている可能性が出てきました。', review:'相手の金額主張には、明細と証拠を求めるのが基本動作。', next:'s11'},
+      {label:'工事に着工しておらず、原状は変わっていないと反論する', fx:{ev:2}, result:'現場は契約時と変わっておらず、回復すべき損害が見当たらないことが示されました。', review:'損害の実在を問う反論は、金額の土台を崩す。', next:'s11'}]},
+    s11:{phase:'裁判官からの質問', title:'「解約の意思表示は、いつ、どうしましたか？」', text:`期日。裁判官が日付と方法を確かめます。`, noteKey:'credibility', choices:[
+      {label:'電話の日、書面を発送した日を、記録に沿って分けて答える', fx:{tr:2}, result:'発送控えと日付が一致し、裁判官が頷きました。', review:'日付の答えは記録と一致させることが何より大事。', next:'s12'},
+      {label:'「5日目には解約は成立していました」とまとめて答える', fx:{tr:-1}, result:'「成立の根拠となる行為はどれですか」と重ねて聞かれました。', review:'結論だけの答えは、行為と日付を問われると弱くなる。', next:'s12'},
+      {label:'分からない部分は「控えに残っている範囲で」と限定して答える', fx:{tr:1,ev:1}, result:'答えられる範囲が明確になり、記録の信用が上がりました。', review:'限定した答えは、記録のある部分の信用を高める。', next:'s12'}]},
+    s12:{phase:'和解勧告', title:'判決か、和解か', preNoteKey:'negotiation', text:`裁判官から和解案が示されました。「240,000円の返還でまとめる案を考えています」`, choices:[
+      {label:'和解案を受け入れる（240,000円）', fx:{}, ending:'judgeSettle', review:'ほぼ請求に近い水準での確実な決着。'},
+      {label:'受け入れず、判決をもらう', fx:{}, ending:'verdict', review:'判決では要件の評価がそのまま金額になる。'}]}
+  }
+});
+
+/* ============ 事件5：フリーランス報酬 ============ */
+CASES.push({
+  id:'freelance', icon:'💻', title:'納品したのに払われない', cat:'仕事・金銭', claim:330000, claimLabel:'報酬等請求 330,000円', time:'約11分',
+  desc:'フリーランスとして作ったWebページ。公開までされたのに「検収が終わっていない」と報酬が払われない。',
+  notes:{ rule:{title:'📘 要所ノート ― 業務委託と「検収」', body:`業務委託でも、合意した仕事を完成させて納品すれば、報酬を請求できるのが原則です。契約書がなくても、チャットやメールのやり取りで合意内容や金額が分かれば、契約の成立を争えます。\n「検収が終わらないから払わない」という主張に対しては、実際に成果物が使われている事実や、検収期間の定め、修正依頼が当初の仕様の範囲内かが論点になります。フリーランスとの取引については、発注内容の明示や支払期日を定める法律（フリーランス・事業者間取引適正化法）も整備されています。`} },
+  knowledge:[
+    '<b>契約書がなくても契約は成立しうる。</b>チャットやメールの合意の記録が土台になる。',
+    '<b>「使っているのに検収未了」は弱い主張になりやすい。</b>成果物の公開・利用の事実が効く。',
+    '<b>修正の範囲は当初の仕様との比較で決まる。</b>仕様の記録があるかどうかが分かれ目。',
+    '<b>フリーランス新法は発注の明示と期日内支払いを求める。</b>個人の発注トラブルでも背景のルールになる。',
+    '<b>納品の証拠は日付とセットで残す。</b>納品メール、ファイルの送信記録、公開画面の保存が効く。'],
+  endings:{
+    settle150:{title:'半額で和解（150,000円）', amount:150000, body:'会社の提示150,000円で和解。早いが、納品した仕事の評価としては低いままだった。'},
+    settle200:{title:'交渉で和解（200,000円）', amount:200000, body:'逆提案で当初の提示から50,000円上がった和解。'},
+    judgeSettle:{title:'裁判上の和解（260,000円）', amount:260000, body:'裁判官の和解案260,000円で終了。公開の事実が水準を押し上げた。'}},
+  verdict:{mode:'award', items:[
+    {label:'報酬本体', claimed:300000, stat:'evcl', hi:9, lo:6, amounts:[300000,220000,90000], why:'合意の内容と納品・利用の事実を示せたかが、本体を分けた。'},
+    {label:'遅延分・追加作業分', claimed:30000, stat:'cl', hi:5, lo:3, amounts:[30000,10000,0], why:'支払時期の定めや追加作業の合意を示せたかで変わった。'}]},
+  scenes:{
+    intro:{phase:'発端', title:'公開されたのに、入金がない', text:`知人の会社のWebページ制作を、報酬300,000円で請け負った。納品して、サイトはもう公開されている。なのに支払期日を過ぎても入金がなく、連絡すると返事はこうだった。`, doc:`「検収が終わっていないので、まだ支払えません。修正も残っていますよね？」`, choices:[{label:'合意と納品の記録を確かめる', next:'s2'}]},
+    s2:{phase:'最初の一歩', title:'会社への連絡の仕方', text:`契約書は作っていません。合意はチャットのやり取りの中にあります。`, noteKey:'record', choices:[
+      {label:'メールで、合意内容と納品日を示して支払いを求める', small:'記録に残る形で', fx:{cl:1,ev:1}, result:'会社からは「社内で確認します」とだけ返ってきました。こちらの主張は文字で残りました。', review:'主張を文字で残すと、後の食い違いを防げる。', next:'s3'},
+      {label:'電話で担当者に直接支払いを求める', small:'早いが記録は残らない', fx:{tr:1}, result:'担当者は「上に伝えます」と言いましたが、その後の動きはありません。', review:'口頭の要求は、伝わったかどうか自体が争いになりやすい。', next:'s3'},
+      {label:'いきなり内容証明で請求する', small:'強い意思表示', fx:{cl:2,tr:-1}, flags:['record'], result:'会社の態度は硬くなりましたが、請求の日付と内容は確実に残りました。', review:'内容証明は記録と圧力。関係の硬直も招く。', next:'s3'}]},
+    s3:{phase:'証拠集め', title:'合意と納品を示すもの', text:`手元と相手先に、記録が散らばっています。`, choices:[
+      {label:'公開中のサイトの画面と、納品メールの控えを保存する', small:'「使われている」事実を固定する', fx:{ev:2}, flag:'published', result:'公開画面には、納品したデザインがそのまま使われていました。日付入りの保存もできました。', review:'利用の事実の保存は、検収未了への強い反論材料になる。', next:'s4'},
+      {label:'チャットの合意部分を時系列に整理する', small:'金額と仕様の合意を辿る', fx:{ev:1,cl:1}, result:'金額、ページ数、納期の合意が並びました。「公開OKです」という相手の発言も見つかりました。', review:'合意の整理は、契約の土台そのもの。承認の発言は特に効く。', next:'s4'},
+      {label:'修正依頼の履歴を全部洗い出す', small:'修正が仕様の範囲かを見る', fx:{cl:1,ev:1}, result:'修正の多くは文言の差し替えで、当初の仕様の範囲に見えるものが大半でした。', review:'修正履歴は「終わらない検収」の実態を示す材料になる。', next:'s4'}]},
+    s4:{phase:'ルールを調べる', title:'検収が終わらないと、払わなくていいのか', text:`相手の理屈の中心は「検収未了」です。`, noteKey:'rule', choices:[
+      {label:'弁護士の無料相談で、見通しを聞く', fx:{cl:2}, result:'「公開して使っている以上、検収未了の主張は弱いでしょう」と整理されました。', review:'利用の事実が、検収の主張を崩す構図だと分かる。', next:'s5'},
+      {label:'フリーランスの取引ルールを自分で調べる', fx:{cl:1,ev:1}, result:'発注の明示や支払期日についてのルールがあることが分かりました。', review:'背景のルールを知ると、交渉の言葉が変わる。', next:'s5'}]},
+    s5:{phase:'交渉', title:'請求の置き方', text:`会社に請求の形を置きます。`, noteKey:'negotiation', choices:[
+      {label:'報酬全額と遅延分を含めて請求する', fx:{cl:1}, flag:'demandFull', result:'会社は「修正が残っている」と反論しましたが、交渉は始まりました。', review:'全額請求はアンカー。修正への備えが要る。', next:'s6'},
+      {label:'修正に一度応じる代わりに、支払日を確約させる', fx:{cl:1,tr:1}, flag:'demandPartial', result:'会社は支払日の確約を渋りました。その渋り方自体が情報になりました。', review:'譲歩と交換に確約を求める進め方は、相手の本気度を測れる。', next:'s6'},
+      {label:'まず検収の結果と理由を、書面で求める', fx:{ev:1}, result:'会社から出てきた理由は、公開後に生じた文言変更の希望が中心でした。', review:'理由を書面で出させると、主張の弱い部分が見える。', next:'s6'}]},
+    s6:{phase:'交渉', title:'会社からの提案', doc:`「半額の150,000円で終わりにしませんか。修正分は差し引かせてください」`, text:`会社から提案が来ました。`, choices:[
+      {label:'150,000円で和解する', fx:{}, ending:'settle150', review:'半額の和解は速いが、仕事の評価は低いまま。'},
+      {label:'280,000円なら和解すると逆提案する', fx:{}, result:'会社が持ち帰りました。', review:'逆提案は利用の事実などの材料があるほど通りやすい。', next:'s6b'},
+      {label:'断って、手続を考える', fx:{}, review:'会社の土俵を離れる選択。', next:'s8'}]},
+    s6b:{phase:'交渉', title:'逆提案の結果', doc:`「200,000円が限度です」`, text:`会社から返答がありました。`, choices:[
+      {label:'200,000円で和解する', fx:{}, ending:'settle200', review:'当初の提示から50,000円動かした和解。'},
+      {label:'断って、手続を考える', fx:{}, review:'確実さを手放す選択。', next:'s8'}]},
+    s8:{phase:'手続', title:'どの場で争うか', text:`請求は330,000円。`, noteKey:'procedure', choices:[
+      {label:'少額訴訟を選ぶ', small:'33万円の請求は対象内', fx:{cl:1}, result:'争点をコンパクトにまとめることが求られました。', review:'少額訴訟は速さが魅力。', next:'s9'},
+      {label:'通常訴訟を起こす', small:'じっくり争える', fx:{ev:1}, result:'追加の記録を集める時間が生まれました。', review:'通常訴訟は証拠を積める。時間もかかる。', next:'s9'},
+      {label:'裁判所の民事調停を使う', small:'話し合いの場を持つ', fx:{tr:1,cl:1}, result:'言い分は整理されましたが、合意には届きませんでした。', review:'調停は合意がなければ決着しない。争点整理は残る。', next:'s9'}]},
+    s9:{phase:'証拠', title:'審理に出す中心資料', text:`合意・納品・利用の3つをどう示すか。`, noteKey:'proof', choices:[
+      {label:'合意チャット→納品→公開の時系列セットで出す', fx:{ev:2,cl:1}, result:'話の流れが一本の線で見える形になりました。', review:'時系列セットは、小さな取引の立証で特に効く。', next:'s10'},
+      {label:'公開画面の保存を中心に出す', fx:{ev:2}, result:'使われている事実は強く示せましたが、金額の合意は別で支える必要があります。', review:'利用の事実は強い。合意の立証とは役割が違う。', next:'s10'},
+      {label:'修正履歴を中心に出す', fx:{cl:1,ev:1}, result:'修正が仕様の範囲だったことは伝わりますが、土台の立証はやや弱いままです。', review:'修正の資料は補助線。土台は合意と納品。', next:'s10'}]},
+    s10:{phase:'相手の主張', title:'「検収が終わっていない」', text:`会社側は主張しました。「修正が残っており、検収は完了していない。報酬はまだ発生していない」。反論の軸を選びます。`, choices:[
+      {label:'公開して実際に使っている以上、検収未了とは言えないと反論する', fx:{cl:2}, result:'利用の事実と検収の主張の矛盾が、争いの中心になりました。', review:'利用の事実は、検収未了への最も分かりやすい反論。', next:'s11'},
+      {label:'残っている修正は当初の仕様の範囲か、追加作業かで分けて反論する', fx:{cl:1,ev:1}, result:'修正の中身が仕様と対照され、追加にあたる部分も見えてきました。', review:'仕様との対照は、修正トラブルの正面の争い方。', next:'s11'},
+      {label:'「公開OK」という相手の発言を示して反論する', fx:{ev:2}, result:'承認の発言が記録から示されました。', review:'相手自身の承認の言葉は、立証で強い。', next:'s11'}]},
+    s11:{phase:'裁判官からの質問', title:'「納品は完了した、と言えるのはなぜですか？」', text:`期日。裁判官が確かめます。`, noteKey:'credibility', choices:[
+      {label:'納品メールの日付と、公開が始まった日を結びつけて答える', fx:{tr:2}, result:'日付の線が記録と一致し、裁判官が頷きました。', review:'日付と記録の一致は、答えの信用を作る。', next:'s12'},
+      {label:'「仕事は全部終わっています」とまとめて答える', fx:{tr:-1}, result:'「終わったと言える根拠を順に」と重ねて聞かれました。', review:'結論だけでは、根拠を問われる場面で弱い。', next:'s12'},
+      {label:'修正が残る部分は認め、その範囲は小さいと限定して答える', fx:{tr:1,cl:1}, result:'認める部分と争う部分が分かれ、主張が現実的に見えました。', review:'一部を認めて限定する答えは、全体の信用を上げることがある。', next:'s12'}]},
+    s12:{phase:'和解勧告', title:'判決か、和解か', preNoteKey:'negotiation', text:`裁判官から和解案が示されました。「260,000円の支払いでまとめる案を考えています」`, choices:[
+      {label:'和解案を受け入れる（260,000円）', fx:{}, ending:'judgeSettle', review:'確実な決着。上振れは置いていく。'},
+      {label:'受け入れず、判決をもらう', fx:{}, ending:'verdict', review:'判決では合意と納品の評価がそのまま金額になる。'}]}
+  }
+});
+
+/* ============ 事件6：式場キャンセル料 ============ */
+CASES.push({
+  id:'bridal', icon:'💍', title:'式場のキャンセル料', cat:'消費者', claim:220000, claimLabel:'申込金等返還請求 220,000円', time:'約11分',
+  desc:'結婚式の5か月前にキャンセルしたら、申込金20万円が「全額キャンセル料です」と返ってこない。',
+  notes:{ rule:{title:'📘 要所ノート ― キャンセル料と「平均的な損害」', body:`消費者契約法9条1号は、解約に伴う違約金やキャンセル料について、その契約の解除の時期などを考慮した「平均的な損害」を超える部分は無効としています。\nつまり「規約に書いてあるから全額有効」とは限りません。式場側に実際にどれだけの損害があったか――同じ日程が他の予約で埋まったか、準備に費用がかかっていたか――が問題になります。一般に、キャンセル時期が早いほど、事業者の損害は小さくなりやすいと考えられます。`} },
+  knowledge:[
+    '<b>キャンセル料の上限は消費者契約法9条。</b>「平均的な損害」を超える部分は無効になりうる。',
+    '<b>時期が早いほど損害は小さいのが一般論。</b>5か月前と前日では話が違う。',
+    '<b>同じ日程が埋まったかどうかが効く。</b>事業者に実損がなければ、没収の根拠は弱くなる。',
+    '<b>規約の説明のされ方も論点になる。</b>申込時にキャンセル料の説明があったかを確認する。',
+    '<b>業界のモデル約款は時期別の料率が目安になる。</b>全額没収が標準とは限らない。'],
+  endings:{
+    settle50:{title:'一部返還で和解（50,000円）', amount:50000, body:'式場の提示50,000円で和解。速いが、時期の早さを考えると譲った形。'},
+    settle90:{title:'交渉で和解（90,000円）', amount:90000, body:'逆提案で当初の提示から40,000円上がった和解。'},
+    judgeSettle:{title:'裁判上の和解（140,000円）', amount:140000, body:'裁判官の和解案140,000円で終了。損害の評価をめぐる判決リスクを避けた。'}},
+  verdict:{mode:'award', items:[
+    {label:'申込金の返還', claimed:200000, stat:'cl', hi:6, lo:4, amounts:[170000,110000,30000], why:'キャンセル料が「平均的な損害」を超えるという主張を組み立てられたかが本体を分けた。'},
+    {label:'試着等の実費の返還', claimed:20000, stat:'ev', hi:4, lo:2, amounts:[20000,10000,0], why:'支払った実費の内容と領収書を示せたかで変わった。'}]},
+  scenes:{
+    intro:{phase:'発端', title:'5か月前のキャンセル', text:`結婚式の申込みで、申込金200,000円を払った。事情が変わり、式の5か月前にキャンセルを伝えたところ、返事はこうだった。`, doc:`「規約により、申込金は全額キャンセル料として申し受けます。ご返金はありません」`, choices:[{label:'規約と、式場側の損害を確かめる', next:'s2'}]},
+    s2:{phase:'最初の一歩', title:'式場への連絡の仕方', text:`「規約通りです」で終わる話なのか。`, noteKey:'record', choices:[
+      {label:'メールで、キャンセル料の根拠と損害の内訳を求める', small:'記録に残る形で', fx:{cl:1,ev:1}, result:'式場からは規約のコピーだけが送られてきて、損害の内訳は示されませんでした。', review:'内訳を求めることは、相手の根拠を固定する第一歩。', next:'s3'},
+      {label:'担当プランナーに電話で事情を話し、返金を頼む', small:'情に訴える進め方', fx:{tr:1}, result:'担当者は同情はしてくれましたが「規約なので」との答えでした。', review:'事情の説明は空気を柔らかくする。金額の根拠には届かない。', next:'s3'},
+      {label:'消費生活センターにまず相談する', small:'窓口から入る', fx:{cl:1,tr:1}, result:'「キャンセル料には法律上の上限の考え方があります」と助言されました。', review:'専門窓口は、規約以外の物差しを教えてくれる。', next:'s3'}]},
+    s3:{phase:'証拠集め', title:'損害の実態を探る', text:`金額を決めるのは、式場側に実際に生じた損害です。`, choices:[
+      {label:'キャンセルした日程が、その後どうなったかを調べる', small:'他の予約で埋まったか', fx:{ev:2}, flag:'refilled', result:'式場のSNSで、同じ日程に別の式の写真が紹介されているのを見つけました。日程は埋まった可能性が高そうです。', review:'日程が埋まった事実は「損害が小さかった」ことの強い材料になる。', next:'s4'},
+      {label:'申込時の規約と説明資料を読み直す', small:'料率と説明の有無を見る', fx:{cl:1,ev:1}, result:'規約には時期を問わず全額没収と読める記載があり、申込時の説明のメモはありませんでした。', review:'規約の書き方と説明の有無は、それぞれ別の論点になる。', next:'s4'},
+      {label:'他の式場や業界の時期別料率を調べる', small:'相場の物差しを持つ', fx:{cl:2}, result:'業界のモデルでは、時期が早いキャンセルの料率はかなり低いことが分かりました。', review:'相場の資料は「平均的な損害」を考える物差しになる。', next:'s4'}]},
+    s4:{phase:'ルールを調べる', title:'「規約通り」は絶対か', text:`キャンセル料の条項に、法律上の上限があるのか。`, noteKey:'rule', choices:[
+      {label:'弁護士の無料相談で、消費者契約法の考え方を聞く', fx:{cl:2}, result:'「平均的な損害を超える部分は無効という考え方があります」と整理されました。', review:'9条の考え方は、この事件の正面の武器。', next:'s5'},
+      {label:'条文と解説を自分で調べる', fx:{cl:1,ev:1}, result:'考え方の骨格は掴めましたが、自分のケースの損害額の見積もりは難しいままでした。', review:'ルールは掴める。損害額の当てはめが難しいところ。', next:'s5'}]},
+    s5:{phase:'交渉', title:'返金要求の置き方', text:`式場に要求を伝えます。`, noteKey:'negotiation', choices:[
+      {label:'申込金の全額返還を求める', fx:{cl:1}, flag:'demandFull', result:'式場は「前例がない」と硬い反応でしたが、交渉は始まりました。', review:'全額要求はアンカー。損害の小ささの裏付けが要る。', next:'s6'},
+      {label:'実損があるなら内訳を示してほしい、と先に求める', fx:{ev:1,cl:1}, result:'式場が出してきた内訳は、印刷物の発注など少額のものが中心でした。', review:'内訳を出させると、損害の小ささが数字で見えてくる。', next:'s6'},
+      {label:'一部は認め、残りの返還を求める', fx:{cl:1,tr:1}, flag:'demandPartial', result:'式場の態度は少し柔らかくなりました。認めた部分は戻らない前提で話が進みます。', review:'一部を認める進め方は速い。認めた分は固定される。', next:'s6'}]},
+    s6:{phase:'交渉', title:'式場からの提案', doc:`「特別に、50,000円だけお返しします」`, text:`式場から提案が来ました。`, choices:[
+      {label:'50,000円で和解する', fx:{}, ending:'settle50', review:'早期の和解は、時期の早さという材料を置いていく形。'},
+      {label:'150,000円なら和解すると逆提案する', fx:{}, result:'式場が本部と相談することになりました。', review:'逆提案は損害の材料があるほど通りやすい。', next:'s6b'},
+      {label:'断って、手続を考える', fx:{}, review:'交渉の場を離れる選択。', next:'s8'}]},
+    s6b:{phase:'交渉', title:'逆提案の結果', doc:`「90,000円が限度です」`, text:`式場から返答がありました。`, choices:[
+      {label:'90,000円で和解する', fx:{}, ending:'settle90', review:'当初の提示から40,000円動かした和解。'},
+      {label:'断って、手続を考える', fx:{}, review:'確実さを手放す選択。', next:'s8'}]},
+    s8:{phase:'手続', title:'どの場で争うか', text:`請求は220,000円。`, noteKey:'procedure', choices:[
+      {label:'消費生活センターのあっせんを使う', fx:{tr:1,cl:1}, result:'あっせんでは言い分が整理されましたが、合意には届きませんでした。', review:'あっせんは合意が前提。整理は次に使える。', next:'s9'},
+      {label:'少額訴訟を選ぶ', small:'22万円の請求は対象内', fx:{cl:1}, result:'争点をコンパクトにまとめることが求られました。', review:'少額訴訟は速さが魅力。', next:'s9'},
+      {label:'通常訴訟を起こす', small:'じっくり争える', fx:{ev:1}, result:'追加の資料を集める時間が生まれました。', review:'通常訴訟は証拠を積める。時間もかかる。', next:'s9'}]},
+    s9:{phase:'証拠', title:'審理に出す中心資料', text:`損害の小ささを、どう示すか。`, noteKey:'proof', choices:[
+      {label:'日程が埋まったことを示す資料と、時期の早さを中心に出す', fx:{ev:2,cl:1}, result:'キャンセルの早さと、その後の日程の埋まり方が並びました。', review:'時期と実損の資料は、この事件の中心になる。', next:'s10'},
+      {label:'業界の時期別料率の資料を中心に出す', fx:{cl:2}, result:'相場との懸け離れが示せましたが、個別の損害の話とは距離があります。', review:'相場は物差し。個別の実損の資料と組み合わせると強い。', next:'s10'},
+      {label:'規約と申込書を中心に出す', fx:{ev:1,cl:1}, result:'条項の内容は明確になりましたが、損害の実態には届きません。', review:'条項の存在と、その有効性は別の話。', next:'s10'}]},
+    s10:{phase:'相手の主張', title:'「規約に同意していたはず」', text:`式場側は主張しました。「申込時に規約を渡し、同意を得ている。全額没収は合意の内容だ」。反論の軸を選びます。`, choices:[
+      {label:'合意があっても、平均的な損害を超える部分は無効だと反論する', fx:{cl:2}, result:'消費者契約法9条の考え方が、正面の争いになりました。', review:'合意の存在と、条項の有効性は分けて争う。', next:'s11'},
+      {label:'日程が埋まり、実損は小さいことを軸に反論する', fx:{ev:2}, result:'実損の小ささが資料で示されました。', review:'実損の資料は「平均的な損害」の当てはめを支える。', next:'s11'},
+      {label:'申込時にキャンセル料の説明がなかったことを軸に反論する', fx:{cl:1,ev:1}, result:'説明の記録が式場側にもないことが分かりました。', review:'説明の有無は、条項への同意の重さを左右する。', next:'s11'}]},
+    s11:{phase:'裁判官からの質問', title:'「キャンセルの事情は、金額に関係しますか？」', text:`期日。裁判官が静かに尋ねました。`, noteKey:'credibility', choices:[
+      {label:'「事情そのものより、時期の早さと式場側の損害の小ささが中心だと思います」と答える', fx:{tr:2,cl:1}, result:'裁判官が頷き、損害の資料に目を移しました。', review:'問いの中心を捉えた答えは、争点の理解を示す。', next:'s12'},
+      {label:'事情を詳しく説明し、同情を求める', fx:{tr:-1}, result:'事情は伝わりましたが「金額の根拠とは分けて考えますね」と返されました。', review:'事情の説明は金額の法的根拠にはなりにくい。', next:'s12'},
+      {label:'「関係するかどうかは分かりません」と正直に答える', fx:{tr:1}, result:'分からない部分は分からないまま置かれ、損害の話に移りました。', review:'正直な答えは信用を守る。争点の理解は別で示す必要がある。', next:'s12'}]},
+    s12:{phase:'和解勧告', title:'判決か、和解か', preNoteKey:'negotiation', text:`裁判官から和解案が示されました。「140,000円の返還でまとめる案を考えています」`, choices:[
+      {label:'和解案を受け入れる（140,000円）', fx:{}, ending:'judgeSettle', review:'確実な決着。判決での上振れは置いていく。'},
+      {label:'受け入れず、判決をもらう', fx:{}, ending:'verdict', review:'判決では損害の評価がそのまま金額になる。'}]}
+  }
+});
+/* ============ 事件7：お隣の木 ============ */
+CASES.push({
+  id:'ki', icon:'🌳', title:'越境してくるお隣の木', cat:'不動産', claim:200000, claimLabel:'剪定費用等請求 200,000円', time:'約11分',
+  desc:'お隣の木の枝が境界を越え、落ち葉で雨樋が詰まり、根で塀も浮いてきた。再三頼んでも切ってもらえず、自分で業者を頼んだ費用の争い。',
+  notes:{ rule:{title:'📘 要所ノート ― 相隣関係と民法233条', body:`民法233条は、隣地の竹木の枝が境界線を越えたとき、原則としてその所有者に切除させることができると定めています。2021年の改正では、催告しても相当期間に切除されない場合などに、越境した枝を自ら切ることができる場合が明記されました。根が越境した場合は、自ら切り取ることができます。\n落ち葉のような軽微な越境は受忍の範囲とされることもあり、「越境の程度」と「催告の経緯」が実務では大きく効きます。`} },
+  knowledge:[
+    '<b>枝の越境は民法233条。</b>原則は所有者に切除を求め、催告と期間の経過が大事になる。',
+    '<b>根の越境は自分で切り取れる。</b>枝と根でルールが違う。',
+    '<b>近隣トラブルは関係が続く。</b>勝ち負けだけでなく、その後の暮らしもコストに入る。',
+    '<b>境界の資料が土台になる。</b>登記や測量図、境界標の写真が争いを小さくする。',
+    '<b>立替費用を争うには催告の記録が要る。</b>「頼んだのに動かなかった」経緯を示せるか。'],
+  endings:{
+    settle70:{title:'半分負担で和解（70,000円）', amount:70000, body:'費用の一部を隣人が負担することで和解。関係を残す形の決着だった。'},
+    settle100:{title:'交渉で和解（100,000円）', amount:100000, body:'逆提案で当初の提示から30,000円上がった和解。'},
+    judgeSettle:{title:'裁判上の和解（150,000円）', amount:150000, body:'裁判官の和解案150,000円で終了。今後の剪定の約束も盛り込まれた。'}},
+  verdict:{mode:'award', items:[
+    {label:'剪定費用の負担分', claimed:140000, stat:'evcl', hi:9, lo:6, amounts:[130000,90000,30000], why:'越境の事実と、催告しても切られなかった経緯を示せたかが分けた。'},
+    {label:'雨樋の清掃・修理費', claimed:60000, stat:'ev', hi:4, lo:2, amounts:[60000,30000,0], why:'落ち葉と詰まりの因果を示せたかで変わった。'}]},
+  scenes:{
+    intro:{phase:'発端', title:'塀を押し上げる根', text:`お隣の庭木が年々大きくなり、枝は境界を越え、落ち葉で雨樋は詰まり、根でブロック塀まで浮いてきた。何度頼んでも「そのうちやるよ」で終わる。ついに業者に剪定を頼み、費用は自分が立て替えた。`, doc:`【立替えた費用】\n剪定費用 140,000円\n雨樋の清掃・修理 60,000円\n合計 200,000円`, choices:[{label:'隣人に、費用の負担を求めることにする', next:'s2'}]},
+    s2:{phase:'交渉のはじめ', title:'隣人への伝え方', text:`相手は、裁判が終わっても隣に住み続ける人です。`, noteKey:'record', choices:[
+      {label:'手紙で、越境の状況と費用の負担をお願いする', small:'記録が残る形で、穏やかに', fx:{cl:1,ev:1,tr:1}, result:'手紙は届きましたが、返事はしばらくありませんでした。', review:'近隣では、伝え方の温度と記録の両方が効く。', next:'s3'},
+      {label:'玄関先で口頭でお願いする', small:'早いが記録は残らない', fx:{tr:1}, result:'その場では「分かった」と言われましたが、後日「そんな話はしていない」と言われました。', review:'口頭の約束は、隣人相手でも記録の弱さが残る。', next:'s3'},
+      {label:'市役所の無料相談・市民相談にまず行く', small:'第三者の窓口から入る', fx:{cl:1}, result:'「相隣関係の資料と、催告の記録を」と助言されました。', review:'行政相談は、感情論から論点への橋渡しになる。', next:'s3'}]},
+    s3:{phase:'証拠集め', title:'越境と経緯を示すもの', text:`「いつから、どれだけ越えて、どう頼んだか」が材料です。`, choices:[
+      {label:'境界標と越境した枝を、時期を追って写真で残す', fx:{ev:2}, flag:'borderPhoto', result:'季節ごとの写真で、枝の伸びと塀の浮き上がりが追える形になりました。', review:'時系列の写真は、越境の程度と変化を示す。', next:'s4'},
+      {label:'法務局で登記事項と地積測量図を確認する', fx:{cl:1,ev:1}, result:'境界のおおよその位置が資料で示せるようになりました。', review:'境界の資料は、相隣の争い全体の土台になる。', next:'s4'},
+      {label:'業者に、越境部分とそうでない部分を分けた見積書をもらう', fx:{cl:2}, result:'費用のうち越境対応の部分が切り分けられました。', review:'費用の内訳の切り分けは、負担範囲の争いで効く。', next:'s4'}]},
+    s4:{phase:'ルールを調べる', title:'枝と根で、ルールが違う', text:`相隣関係のルールを確認します。`, noteKey:'rule', choices:[
+      {label:'弁護士の無料相談で、233条の当てはめを聞く', fx:{cl:2}, result:'「催告の経緯と、越境の程度が中心です」と整理されました。', review:'相隣は条文だけでなく、程度と経緯の争いになる。', next:'s5'},
+      {label:'条文と解説を自分で調べる', fx:{cl:1,ev:1}, result:'枝と根で扱いが違うことが分かりました。当てはめには不安が残ります。', review:'自分で読むと骨格は掴める。程度の判断は難しい。', next:'s5'}]},
+    s5:{phase:'交渉', title:'負担の求め方', text:`隣人に、費用負担の要求を置きます。`, noteKey:'negotiation', choices:[
+      {label:'立替えた全額の負担を求める', fx:{cl:1}, flag:'demandFull', result:'隣人は「勝手に切った費用まで」と反発しました。', review:'全額要求はアンカー。催告の経緯が支えになる。', next:'s6'},
+      {label:'今後の剪定の約束とセットで、一部の負担を求める', fx:{cl:1,tr:1}, flag:'demandPartial', result:'隣人の態度が少し柔らかくなりました。今後の約束が交渉の材料になりました。', review:'近隣では「今後の約束」も和解の価値になる。', next:'s6'},
+      {label:'まず越境の事実だけでも認めてもらう', fx:{ev:1}, result:'越境そのものは認められ、争いは費用の範囲に絞られました。', review:'事実を先に確定させると、争点が小さくなる。', next:'s6'}]},
+    s6:{phase:'交渉', title:'隣人からの提案', doc:`「半分…いや、70,000円だけなら出す。それで終わりにしよう」`, text:`隣人から提案がありました。`, choices:[
+      {label:'70,000円で和解する', fx:{}, ending:'settle70', review:'関係を残すことを優先した和解。'},
+      {label:'160,000円なら和解すると逆提案する', fx:{}, result:'隣人が家族と相談することになりました。', review:'逆提案は経緯の記録があるほど通りやすい。', next:'s6b'},
+      {label:'断って、手続を考える', fx:{}, review:'隣人との話し合いの場を離れる選択。', next:'s8'}]},
+    s6b:{phase:'交渉', title:'逆提案の結果', doc:`「100,000円までだ。これ以上は出さない」`, text:`返答がありました。`, choices:[
+      {label:'100,000円で和解する', fx:{}, ending:'settle100', review:'当初の提示から30,000円動かした和解。'},
+      {label:'断って、手続を考える', fx:{}, review:'確実さを手放す選択。', next:'s8'}]},
+    s8:{phase:'手続', title:'関係が続く相手と、どの場で', text:`近隣の争いは、終わり方も大事です。`, noteKey:'procedure', choices:[
+      {label:'民事調停を申し立てる', small:'話し合いで、今後の約束まで作れる', fx:{tr:1,cl:1}, result:'調停では費用と今後の剪定について話されましたが、合意には届きませんでした。', review:'調停は将来の約束まで含められるのが近隣向き。', next:'s9'},
+      {label:'少額訴訟を選ぶ', small:'20万円の請求は対象内', fx:{cl:1}, result:'争点をコンパクトにまとめることが求られました。', review:'少額訴訟は速い。今後の関係は別に残る。', next:'s9'},
+      {label:'通常訴訟を起こす', small:'じっくり争える', fx:{ev:1}, result:'追加の資料を集める時間が生まれました。', review:'通常訴訟は証拠を積める。関係への影響も大きい。', next:'s9'}]},
+    s9:{phase:'証拠', title:'審理に出す中心資料', text:`越境・催告・費用の3つをどう示すか。`, noteKey:'proof', choices:[
+      {label:'写真の時系列と催告の手紙をセットで出す', fx:{ev:2,cl:1}, result:'変化と経緯が一本の線で見える形になりました。', review:'時系列＋催告のセットは相隣の立証の中心。', next:'s10'},
+      {label:'境界の公的資料を中心に出す', fx:{cl:2,ev:1}, result:'境界の位置は明確になりましたが、費用の話は別で支える必要があります。', review:'境界資料は土台。費用の立証とは役割が違う。', next:'s10'},
+      {label:'業者の領収書と見積を中心に出す', fx:{ev:1,cl:1}, result:'金額は示せましたが、越境の程度は弱いままです。', review:'金額の資料だけでは、負担の根拠に届かない。', next:'s10'}]},
+    s10:{phase:'相手の主張', title:'「木は昔からあった。自然のものだ」', text:`隣人側は主張しました。「植えたのは前の住人だし、木が伸びるのは自然だ。落ち葉も受忍の範囲だ」。反論の軸を選びます。`, choices:[
+      {label:'枝の越境の程度と、塀への実害を軸に反論する', fx:{ev:2}, result:'写真と塀の状態が、単なる落ち葉の話ではないことを示しました。', review:'受忍限度は程度の問題。実害の具体化が軸になる。', next:'s11'},
+      {label:'再三の催告に応じなかった経緯を軸に反論する', fx:{cl:2}, result:'手紙と日付の流れが、相手の対応を示しました。', review:'催告の経緯は、233条の場面で特に効く。', next:'s11'},
+      {label:'根による塀の損傷は、枝とは別の問題だと切り分けて反論する', fx:{cl:1,ev:1}, result:'枝・根・落ち葉が切り分けられ、争いが整理されました。', review:'問題を切り分ける反論は、裁判官に伝わりやすい。', next:'s11'}]},
+    s11:{phase:'裁判官からの質問', title:'「切れば済む話では？なぜ費用が隣人の負担になるのですか？」', text:`期日。裁判官が核心を尋ねました。`, noteKey:'credibility', choices:[
+      {label:'催告しても切られず、実害が続いた経緯を順に答える', fx:{tr:2}, result:'手紙の日付と写真が、説明と一致しました。', review:'経緯を順に答える説明は、立替の必然性を示す。', next:'s12'},
+      {label:'「隣の木なのだから当然です」とまとめて答える', fx:{tr:-1}, result:'「当然の根拠を順に示してください」と返されました。', review:'結論の繰り返しは、根拠を問われると弱い。', next:'s12'},
+      {label:'自分で切る選択肢もあったことは認め、範囲の問題だと限定して答える', fx:{tr:1,cl:1}, result:'認める部分と争う部分が分かれ、話が具体的になりました。', review:'限定して認める答えは、全体の信用を上げることがある。', next:'s12'}]},
+    s12:{phase:'和解勧告', title:'判決か、和解か', preNoteKey:'negotiation', text:`裁判官から和解案が示されました。「150,000円の負担と、今後の剪定の約束でまとめる案を考えています」`, choices:[
+      {label:'和解案を受け入れる（150,000円＋今後の約束）', fx:{}, ending:'judgeSettle', review:'お金と今後の約束をセットで得る和解。'},
+      {label:'受け入れず、判決をもらう', fx:{}, ending:'verdict', review:'判決では越境と経緯の評価がそのまま金額になる。'}]}
+  }
+});
+
+/* ============ 事件8：相続預金 ============ */
+CASES.push({
+  id:'sozoku', icon:'📖', title:'父の預金と兄の説明', cat:'相続・家庭', claim:680000, claimLabel:'預金引出分等の請求 680,000円', time:'約12分',
+  desc:'父の入院中から死後にかけて、兄が預金を120万円引き出していた。使途の説明が二転三転する。相続人は、あなたと兄の2人。',
+  notes:{ rule:{title:'📘 要所ノート ― 相続の預金と遺産分割', body:`相続財産は、原則として遺産分割の中で分け方を決めます。誰かが生前・死後に引き出したお金は、遺産分割の場で使途を確認し、精算するのが正面の進め方です。本作では話を単純にするため、使途不明の引き出し分を単独で争う形に簡略化しています。\n制度として、遺産分割の前でも、各相続人は預金の一部を単独で払い戻せる「仮払い制度」（民法909条の2）があります。銀行の取引履歴は、相続人であることを示して開示を求めることができます。`} },
+  knowledge:[
+    '<b>相続の正面は遺産分割。</b>引き出されたお金も、まず分割の場で使途と精算を争う。',
+    '<b>仮払い制度（民法909条の2）。</b>分割前でも預金の一部を単独で受け取れる場合がある。',
+    '<b>取引履歴は相続人として開示を求められる。</b>引き出しの時期と本人の状態の対応が鍵。',
+    '<b>法定相続分は出発点。</b>子どもだけが相続人なら、原則は人数で均等に分ける。',
+    '<b>身内の争いほど記録が要る。</b>「家族だから分かるはず」が、一番争いを長くする。'],
+  endings:{
+    settle200:{title:'話し合いで終了（200,000円）', amount:200000, body:'兄の提示200,000円で終わりにした。家族の関係は残ったが、使途の謎は残ったままだった。'},
+    settle320:{title:'交渉で和解（320,000円）', amount:320000, body:'逆提案で当初の提示から120,000円上がった和解。'},
+    judgeSettle:{title:'調停・審理を経た和解（480,000円）', amount:480000, body:'480,000円の精算でまとまった。履歴の開示が水準を押し上げた。'}},
+  verdict:{mode:'award', items:[
+    {label:'使途不明の引き出し分の持分', claimed:600000, stat:'ev', hi:5, lo:3, amounts:[550000,350000,100000], why:'引き出しの時期と父の状態、使途の裏付けをどこまで示せたかが分けた。'},
+    {label:'立て替えた医療費の精算分', claimed:80000, stat:'cl', hi:5, lo:3, amounts:[80000,40000,0], why:'領収書と立て替えの経緯を示せたかで変わった。'}]},
+  scenes:{
+    intro:{phase:'発端', title:'通帳に残った引き出し', text:`父が亡くなり、遺産を整理していた。相続人は、あなたと兄の2人。父の預金は360万円ほどのはずが、入院中から死後にかけて120万円が引き出され、残高が減っていた。管理していたのは兄だ。`, doc:`【預金の状況】\n相続開始時の想定残高 約3,600,000円\n使途不明の引き出し 1,200,000円\nあなたの法定相続分 2分の1`, choices:[{label:'兄に、引き出しの使途を確かめることにする', next:'s2'}]},
+    s2:{phase:'話し合いのはじめ', title:'兄への確かめ方', text:`兄は「父のために使った」と言います。確かめ方を選びます。`, noteKey:'record', choices:[
+      {label:'LINEと手紙で、使途と資料の提示を求める', small:'記録が残る形で', fx:{cl:1,ev:1}, result:'兄からは「葬儀と入院費用だ」と返ってきましたが、資料は出てきませんでした。', review:'身内でも、求めた内容と日付を残すことが土台になる。', next:'s3'},
+      {label:'実家で直接、面と向かって聞く', small:'早いが記録は残らない', fx:{tr:1}, result:'話は感情的になり「疑うのか」で終わりました。使途の資料は出てきません。', review:'対面は温度は伝わるが、使途の確認には向かない場面がある。', next:'s3'},
+      {label:'共通の親戚に間に入ってもらう', small:'関係の緩衝材を置く', fx:{tr:1,cl:1}, result:'話し合いの場は持てましたが、兄の説明はその場でも変わりました。', review:'第三者は関係の緩衝になる。資料の確認は別に必要。', next:'s3'}]},
+    s3:{phase:'証拠集め', title:'銀行の記録を取りに行く', text:`兄の説明は「入院費用」「葬儀費用」「父に頼まれた」と変わってきました。客観的な記録が必要です。`, choices:[
+      {label:'相続人として、銀行に取引履歴の開示を求める', fx:{ev:2}, flag:'bankRecord', result:'履歴が開示されました。大きな引き出しは、父が意識のなかった時期にもありました。', review:'取引履歴は、説明の変遷を確かめる土台になる。', next:'s4'},
+      {label:'父の入院・通院の記録と、引き出し日を並べる', fx:{ev:1,cl:1}, result:'引き出しの日と、父の状態・医療費の支払日が並べられるようになりました。', review:'時期の対応は、使途の説明の真偽を分ける。', next:'s4'},
+      {label:'葬儀社や病院の領収書を集める', fx:{cl:1,ev:1}, result:'正当な支出の額の見当がつきました。それを超える引き出しが残ります。', review:'正当な支出を先に確定すると、不明分が浮き上がる。', next:'s4'}]},
+    s4:{phase:'ルールを調べる', title:'相続の進め方の正面', text:`このお金を、どこでどう争うのが正面なのかを確認します。`, noteKey:'rule', choices:[
+      {label:'弁護士の無料相談で、遺産分割の進め方を聞く', fx:{cl:2}, result:'「本来は遺産分割の中で使途と精算を争います」と全体の地図が示されました。', review:'相続は全体の手続の中で位置づけると見通しが立つ。', next:'s5'},
+      {label:'制度を自分で調べる', fx:{cl:1,ev:1}, result:'仮払い制度など、分割前にできることも分かりました。当てはめには不安が残ります。', review:'自分で調べると選択肢は広がる。当てはめは相談に劣る。', next:'s5'}]},
+    s5:{phase:'交渉', title:'兄への要求の置き方', text:`兄に要求を伝えます。`, noteKey:'negotiation', choices:[
+      {label:'使途不明分の半分、600,000円等の精算を求める', fx:{cl:1}, flag:'demandFull', result:'兄は「家族を訴える気か」と反発しましたが、金額の話は始まりました。', review:'金額の要求は、履歴という土台があってこそ立つ。', next:'s6'},
+      {label:'まず引き出しの使途を、資料で説明するよう求める', fx:{ev:1,cl:1}, result:'兄が出してきた領収書は一部だけで、説明できない引き出しが残りました。', review:'説明を先に求める進め方は、不明分を特定させる。', next:'s6'},
+      {label:'正当な支出は認め、残りの精算を求める', fx:{cl:1,tr:1}, flag:'demandPartial', result:'葬儀費用などは認める形になり、争いは不明分だけに絞られました。', review:'認める部分を分けると、争点が小さく鋭くなる。', next:'s6'}]},
+    s6:{phase:'交渉', title:'兄からの提案', doc:`「全部、父のために使ったんだ。200,000円渡すから、これで終わりにしよう」`, text:`兄から提案がありました。`, choices:[
+      {label:'200,000円で終わりにする', fx:{}, ending:'settle200', review:'家族関係を優先した終わり方。使途の謎は残る。'},
+      {label:'550,000円なら終わりにすると逆提案する', fx:{}, result:'兄が考え込む様子を見せました。', review:'逆提案は履歴の材料があるほど通りやすい。', next:'s6b'},
+      {label:'断って、手続を考える', fx:{}, review:'家族の話し合いの場を離れる選択。', next:'s8'}]},
+    s6b:{phase:'交渉', title:'逆提案の結果', doc:`「320,000円までだ。それ以上は出さない」`, text:`返答がありました。`, choices:[
+      {label:'320,000円で和解する', fx:{}, ending:'settle320', review:'当初の提示から120,000円動かした和解。'},
+      {label:'断って、手続を考える', fx:{}, review:'確実さを手放す選択。', next:'s8'}]},
+    s8:{phase:'手続', title:'相続の争いの場', text:`相続の争いは、家庭裁判所が中心になることが多い分野です。`, noteKey:'procedure', choices:[
+      {label:'遺産分割調停を申し立てる', small:'家庭裁判所での話し合い', fx:{cl:1,tr:1}, result:'調停では遺産全体と引き出しの使途が並べて話されました。', review:'遺産分割調停は相続の正面。全体の中で精算できる。', next:'s9'},
+      {label:'使途不明分について民事の手続で争う', small:'本作の簡略化した進め方', fx:{cl:1}, result:'争点は引き出し分に絞られました。', review:'争点を絞ると速いが、遺産全体の調整は別に残る。', next:'s9'},
+      {label:'通常の民事訴訟を選ぶ', small:'じっくり争える', fx:{ev:1}, result:'追加の資料を集める時間が生まれました。', review:'訴訟は証拠を積める。家族関係への影響も大きい。', next:'s9'}]},
+    s9:{phase:'証拠', title:'審理に出す中心資料', text:`引き出しと、父の状態と、使途の説明をどう結ぶか。`, noteKey:'proof', choices:[
+      {label:'取引履歴と父の入院時期を対応させた表を出す', fx:{ev:2,cl:1}, result:'引き出しの時期と父の状態が、一目で見える形になりました。', review:'対応表は、時期が鍵の事件で中心になる。', next:'s10'},
+      {label:'葬儀・入院の領収書を集めて、正当な支出を確定させる', fx:{cl:2,ev:1}, result:'正当な支出が確定し、不明分だけが残る形になりました。', review:'相手の正当な部分を確定させることも、立証の進め方。', next:'s10'},
+      {label:'兄の説明が変わってきた経緯を、時系列で出す', fx:{ev:1,cl:1}, result:'説明の変遷は伝わりますが、お金の流れそのものは別で支える必要があります。', review:'説明の変遷は信用の問題。お金の流れの資料と組み合わせる。', next:'s10'}]},
+    s10:{phase:'相手の主張', title:'「父に頼まれて引き出した」', text:`兄は主張しました。「父に頼まれて、生活費や入院の支払いに使った。だから遺産ではない」。反論の軸を選びます。`, choices:[
+      {label:'意識のなかった時期の引き出しを示し、その説明は成り立たないと反論する', fx:{ev:2,cl:1}, result:'時期の資料が、説明の核心を突きました。', review:'時期の矛盾は、使途の説明への正面の反論になる。', next:'s11'},
+      {label:'頼まれたことを示す資料がない点を軸に反論する', fx:{cl:2}, result:'委任を示すメモも記録も、兄からは出てきませんでした。', review:'「頼まれた」の立証は、主張する側の資料が問われる。', next:'s11'},
+      {label:'正当な支出分は引いた残りだけが争いだと切り分けて反論する', fx:{cl:1,ev:1}, result:'争いが不明分だけに絞られ、話が具体的になりました。', review:'切り分けは、相手の正当な部分を認めた上で強くなる。', next:'s11'}]},
+    s11:{phase:'調停委員・裁判官からの質問', title:'「お父さんに頼まれた可能性は、ゼロですか？」', text:`核心の質問が来ました。`, noteKey:'credibility', choices:[
+      {label:'「意識のあった時期はあり得ます。その時期と、そうでない時期を分けて考えています」と答える', fx:{tr:2}, result:'時期を分けた答えに、相手の説明の弱い部分が際立ちました。', review:'可能性を認めて時期で分ける答えは、信用と鋭さを両立させる。', next:'s12'},
+      {label:'「ゼロです。全部、兄が勝手にやったことです」と断言する', fx:{tr:-1}, result:'「意識のあった時期の引き出しはどうですか」と重ねて聞かれました。', review:'断言しすぎると、例外の部分で崩れる。', next:'s12'},
+      {label:'「分からないからこそ、履歴で確かめたいのです」と答える', fx:{tr:1,ev:1}, result:'分からない部分を資料で確かめる姿勢が伝わりました。', review:'不知を資料につなげる答えは、立証の姿勢を示す。', next:'s12'}]},
+    s12:{phase:'和解の提示', title:'判決・審判か、和解か', preNoteKey:'negotiation', text:`「480,000円の精算でまとめる案を考えています」という提示がありました。`, choices:[
+      {label:'案を受け入れる（480,000円）', fx:{}, ending:'judgeSettle', review:'家族の争いをここで区切る選択。'},
+      {label:'受け入れず、判断をもらう', fx:{}, ending:'verdict', review:'判断では履歴と時期の評価がそのまま金額になる。'}]}
+  }
+});
+
+/* ============ 事件9：中古車 ============ */
+CASES.push({
+  id:'chukosha', icon:'🚙', title:'買って3週間でエンジン警告灯', cat:'消費者', claim:300000, claimLabel:'修理費等請求 300,000円', time:'約11分',
+  desc:'中古車を買って3週間、エンジンの警告灯が点いた。修理見積は28万円。店は「現状渡しだから保証はない」と言う。',
+  notes:{ rule:{title:'📘 要所ノート ― 契約不適合責任', body:`買った物が契約の内容に合っていなかった場合、買主は売主に修理などの「追完」を求めることができます（民法562条）。事業者が消費者に売る場合、消費者に不利な免責の特約は、消費者契約法などで制限されることがあります。\n「現状渡し」は見た目で分かる状態まで含むことが多い一方、広告や説明で「機関良好」と言われていた場合、その説明との矛盾が論点になります。納車からの期間の短さも、不適合が最初からあったことの推認材料になります。`} },
+  knowledge:[
+    '<b>契約不適合責任は民法562条。</b>まず修理（追完）を求めるのが基本の形。',
+    '<b>「現状渡し」でも説明との矛盾は争える。</b>広告や説明の記録が効く。',
+    '<b>事業者から買う消費者は保護が厚い。</b>不利な免責特約は制限されることがある。',
+    '<b>納車直後の故障は時期が材料になる。</b>早く連絡し、記録を残すことが大事。',
+    '<b>第三者の工場の診断書は強い。</b>不適合の内容と修理費の両方を示せる。'],
+  endings:{
+    settle140:{title:'半額負担で和解（140,000円）', amount:140000, body:'店が修理費の半額を負担することで和解。車は早く直るが、負担は残った。'},
+    settle180:{title:'交渉で和解（180,000円）', amount:180000, body:'逆提案で当初の提示から40,000円上がった和解。'},
+    judgeSettle:{title:'裁判上の和解（210,000円）', amount:210000, body:'裁判官の和解案210,000円で終了。診断書が水準を押し上げた。'}},
+  verdict:{mode:'award', items:[
+    {label:'修理費', claimed:280000, stat:'evcl', hi:9, lo:6, amounts:[260000,170000,50000], why:'不適合の内容と、最初からあったことを示せたかが分けた。'},
+    {label:'代車・検査費用', claimed:20000, stat:'cl', hi:5, lo:3, amounts:[20000,8000,0], why:'店にまず修理を求めた経緯など、手順の正しさが影響した。'}]},
+  scenes:{
+    intro:{phase:'発端', title:'警告灯', text:`走行8万キロの中古車を買って3週間。エンジンの警告灯が点いた。ディーラー系の工場の診断では、修理費は約28万円。販売店に連絡すると、答えは冷たかった。`, doc:`「現状渡しで保証なしとご説明しました。走行距離的にも想定内の故障です」`, choices:[{label:'納車時の説明と、車の状態を確かめる', next:'s2'}]},
+    s2:{phase:'最初の一歩', title:'店への連絡の仕方', text:`店の言い分は「現状渡し」。こちらの動き方を決めます。`, noteKey:'record', choices:[
+      {label:'メールで、不具合の発生と修理費の見積を示して対応を求める', small:'記録に残る形で', fx:{cl:1,ev:1}, result:'店からは「一度持ち込んでください」との返信が来ました。やり取りは残りました。', review:'発生の連絡を早く、記録に残すことが時期の立証になる。', next:'s3'},
+      {label:'店に乗り込んで、その場で修理を迫る', small:'早いが記録は残らない', fx:{tr:-1,cl:1}, result:'店長は「本社に聞かないと」と濁し、話は進みませんでした。', review:'その場の交渉は、内容が残らない弱さがある。', next:'s3'},
+      {label:'まず別の工場で診断書を取る', small:'第三者の記録から固める', fx:{ev:2}, flag:'diagnosis', result:'診断書には、故障が時間をかけて進行していた形跡が書かれていました。', review:'第三者の診断は、不適合の時期と内容の両方に効く。', next:'s3'}]},
+    s3:{phase:'証拠集め', title:'納車時の姿を示すもの', text:`「最初から悪かったのか」が中心の争いです。`, choices:[
+      {label:'販売広告と納車時の説明資料を保存する', small:'「機関良好」の表示を確認する', fx:{ev:1,cl:1}, flag:'adCopy', result:'広告には「機関良好・整備済み」と大きく書かれていました。', review:'広告の表示は、契約内容を考える材料になる。', next:'s4'},
+      {label:'点検記録簿と整備記録を読み直す', small:'記録に残る整備の範囲を見る', fx:{cl:2}, result:'問題の部分の点検が、記録上は形式的に済まされていた可能性が見えてきました。', review:'記録簿は、売主の説明や点検の範囲を示す。', next:'s4'},
+      {label:'警告灯が点いた日と走行距離を、写真で残す', small:'時期と状態を固定する', fx:{ev:2}, result:'納車から3週間、走行は400キロという時期の短さが固定されました。', review:'時期の短さは「最初から」の推認材料になる。', next:'s4'}]},
+    s4:{phase:'ルールを調べる', title:'「現状渡し」の効く範囲', text:`保証なしの特約は、どこまで効くのか。`, noteKey:'rule', choices:[
+      {label:'消費生活センターで相談する', fx:{cl:2}, result:'「事業者からの購入では、免責の特約が制限されることがあります」と整理されました。', review:'消費者売買の保護は、この事件の土台。', next:'s5'},
+      {label:'契約不適合の考え方を自分で調べる', fx:{cl:1,ev:1}, result:'まず修理を求める「追完」が基本だと分かりました。', review:'追完の考え方を知ると、要求の順番が変わる。', next:'s5'}]},
+    s5:{phase:'交渉', title:'要求の置き方', text:`店に対して、要求の形を置きます。`, noteKey:'negotiation', choices:[
+      {label:'まず店で修理（追完）をするよう求める', small:'手順を踏む形', fx:{cl:2}, flag:'repairFirst', result:'店は「預かってみる」と言いましたが、費用の負担は濁されました。', review:'追完を先に求める手順は、後の費用請求の筋も通す。', next:'s6'},
+      {label:'修理費相当額の支払いを求める', small:'金額から入る', fx:{cl:1}, flag:'demandFull', result:'店は「うちで直すなら話は別だが」と反論してきました。', review:'金額から入ると、修理の機会を与えたかが問われやすい。', next:'s6'},
+      {label:'半額負担をこちらから提案する', small:'落としどころを示す', fx:{tr:1,cl:1}, flag:'demandPartial', result:'店の態度は柔らかくなりましたが、負担割合の話に移りました。', review:'譲歩の提示は速い。引いた分は戻りにくい。', next:'s6'}]},
+    s6:{phase:'交渉', title:'店からの提案', doc:`「特別に、修理費の半額 140,000円は当店で負担します」`, text:`店から提案が来ました。`, choices:[
+      {label:'140,000円で和解する', fx:{}, ending:'settle140', review:'半額の和解は速い。車も早く直る。'},
+      {label:'260,000円の負担なら和解すると逆提案する', fx:{}, result:'店が本部と相談することになりました。', review:'逆提案は診断書などの材料があるほど通りやすい。', next:'s6b'},
+      {label:'断って、手続を考える', fx:{}, review:'交渉の場を離れる選択。', next:'s8'}]},
+    s6b:{phase:'交渉', title:'逆提案の結果', doc:`「180,000円が限度です」`, text:`返答がありました。`, choices:[
+      {label:'180,000円で和解する', fx:{}, ending:'settle180', review:'当初の提示から40,000円動かした和解。'},
+      {label:'断って、手続を考える', fx:{}, review:'確実さを手放す選択。', next:'s8'}]},
+    s8:{phase:'手続', title:'どの場で争うか', text:`請求は300,000円。`, noteKey:'procedure', choices:[
+      {label:'消費生活センターのあっせんを使う', fx:{tr:1,cl:1}, result:'あっせんでは双方の言い分が整理されましたが、合意には届きませんでした。', review:'あっせんは合意が前提。整理は次に使える。', next:'s9'},
+      {label:'少額訴訟を選ぶ', small:'30万円の請求は対象内', fx:{cl:1}, result:'争点をコンパクトにまとめることが求られました。', review:'少額訴訟は速さが魅力。', next:'s9'},
+      {label:'通常訴訟を起こす', small:'じっくり争える', fx:{ev:1}, result:'工場の技術的な資料を集める時間が生まれました。', review:'通常訴訟は専門的な資料を積める。', next:'s9'}]},
+    s9:{phase:'証拠', title:'審理に出す中心資料', text:`不適合と、その時期をどう示すか。`, noteKey:'proof', choices:[
+      {label:'診断書と、納車からの期間を示す資料をセットで出す', fx:{ev:2,cl:1}, result:'故障の内容と時期の短さが、並んで見える形になりました。', review:'内容＋時期のセットは、不適合の立証の中心。', next:'s10'},
+      {label:'広告と説明資料を中心に出す', fx:{cl:2,ev:1}, result:'「機関良好」の説明と実態の懸け離れが示せました。', review:'説明との矛盾は、契約内容の認定に効く。', next:'s10'},
+      {label:'修理見積の内訳を中心に出す', fx:{ev:1,cl:1}, result:'金額は示せましたが、不適合そのものは別で支える必要があります。', review:'見積は金額の資料。不適合の立証とは役割が違う。', next:'s10'}]},
+    s10:{phase:'相手の主張', title:'「現状渡しで、保証なしと説明した」', text:`店側は主張しました。「現状渡しの条件で安く売った。8万キロ走った車の故障は想定内だ」。反論の軸を選びます。`, choices:[
+      {label:'消費者への販売では不利な免責が制限されることを軸に反論する', fx:{cl:2}, result:'特約の効力そのものが争点になりました。', review:'特約の制限は、事業者相手の正面の反論。', next:'s11'},
+      {label:'広告の「機関良好」という説明との矛盾を軸に反論する', fx:{cl:1,ev:1}, result:'説明と実態の懸け離れが中心の争いになりました。', review:'説明との矛盾は、現状渡しの範囲を狭める。', next:'s11'},
+      {label:'納車3週間という時期から、最初から不適合があったと反論する', fx:{ev:2}, result:'時期と診断書が結びつきました。', review:'時期の短さと技術的所見の組合せが効く。', next:'s11'}]},
+    s11:{phase:'裁判官からの質問', title:'「まず店に修理を求めましたか？」', text:`期日。裁判官が手順を確かめます。`, noteKey:'credibility', choices:[
+      {label:'求めた経緯を、メールの日付に沿って答える', fx:{tr:2}, result:'やり取りの日付と答えが一致し、裁判官が頷きました。', review:'手順の答えは記録と一致させることが大事。', next:'s12'},
+      {label:'「求めるまでもなく、店が拒否しました」とまとめて答える', fx:{tr:-1}, result:'「どのやり取りで拒否と判断しましたか」と重ねて聞かれました。', review:'まとめすぎた答えは、具体を問われると弱くなる。', next:'s12'},
+      {label:'求め方は弱かった部分を認め、診断を先に取った事情を答える', fx:{tr:1,cl:1}, result:'認める部分と事情が分かれ、手順の評価が具体的になりました。', review:'限定して認める答えは、全体の信用を守る。', next:'s12'}]},
+    s12:{phase:'和解勧告', title:'判決か、和解か', preNoteKey:'negotiation', text:`裁判官から和解案が示されました。「210,000円の負担でまとめる案を考えています」`, choices:[
+      {label:'和解案を受け入れる（210,000円）', fx:{}, ending:'judgeSettle', review:'確実な決着。車の修理も前に進む。'},
+      {label:'受け入れず、判決をもらう', fx:{}, ending:'verdict', review:'判決では不適合の評価がそのまま金額になる。'}]}
+  }
+});
+/* ============ 事件10：貸したお金 ============ */
+CASES.push({
+  id:'kashita', icon:'💴', title:'友人に貸した25万円', cat:'金銭', claim:270000, claimLabel:'貸金返還請求 270,000円', time:'約11分',
+  desc:'友人に頼まれて25万円を振り込んだ。借用書はなし。「来月必ず返す」というLINEだけが残っている。',
+  notes:{ rule:{title:'📘 要所ノート ― お金の貸し借りの立証', body:`金銭消費貸借は、民法587条で、お金を受け取ることによって効力が生じるとされています。借用書がなくても、振込の記録と「返す」というやり取りで、貸した事実と返済の約束を立証できることがあります。\n争いになりやすいのは「もらった（贈与）だった」という反論です。送金時のメモ、金額の事情、返済に触れた発言が、贈与との区別を分けます。債権の消滅時効は、権利を行使できることを知った時から5年、行使できる時から10年という考え方が基本です（民法166条）。利息の約束がない場合の法定利率は年3％です。`} },
+  knowledge:[
+    '<b>借用書がなくても戦える。</b>振込記録＋「返す」という発言のセットが土台になる。',
+    '<b>贈与との区別が中心の争い。</b>送金時のメモや金額の事情が効く。',
+    '<b>お金の貸し借りに時効がある。</b>知った時から5年が基本の目安（民法166条）。',
+    '<b>利息は約束がなければ法定利率。</b>年3％が現在の法定利率（民法404条）。',
+    '<b>貸す前に残すなら、借用書か一通のメッセージ。</b>金額・返済日・名前を文字にするだけで違う。'],
+  endings:{
+    settle50:{title:'一部返済で和解（50,000円）', amount:50000, body:'友人の提示50,000円で終わりにした。関係は残ったが、大部分は戻らなかった。'},
+    settle120:{title:'交渉で和解（120,000円）', amount:120000, body:'逆提案で当初の提示から70,000円上がった和解。分割の約束も取り付けた。'},
+    judgeSettle:{title:'裁判上の和解（190,000円）', amount:190000, body:'裁判官の和解案190,000円で終了。LINEの記録が水準を押し上げた。'}},
+  verdict:{mode:'award', items:[
+    {label:'貸金 元金', claimed:250000, stat:'evcl', hi:9, lo:6, amounts:[250000,180000,60000], why:'振込記録と返済の約束の発言を示せたかが、元金の認定を分けた。'},
+    {label:'遅延損害金相当分', claimed:20000, stat:'cl', hi:5, lo:3, amounts:[20000,6000,0], why:'返済日の約束を示せたかで、遅延分の付き方が変わった。'}]},
+  scenes:{
+    intro:{phase:'発端', title:'「来月必ず返す」', text:`友人に「家賃が払えない」と頼まれ、25万円を振り込んだ。借用書は作らなかった。半年が過ぎ、返済は一度もない。LINEを送ると、返事はそっけなくなってきた。`, doc:`【残っているもの】\n振込記録 250,000円\nLINE「来月必ず返すから…！」\n借用書 なし`, choices:[{label:'貸した事実の記録を、改めて確かめる', next:'s2'}]},
+    s2:{phase:'最初の一歩', title:'友人への連絡の仕方', text:`相手は友人です。切り出し方を選びます。`, noteKey:'record', choices:[
+      {label:'LINEで、返済日の相談を具体的に持ちかける', small:'やり取りが残る形で', fx:{cl:1,ev:1}, result:'友人は「もう少し待って」と返しました。返済を前提にした発言がまた残りました。', review:'日常の道具でも、発言が残る形で使うと証拠になる。', next:'s3'},
+      {label:'電話で直接、返済を求める', small:'早いが記録は残らない', fx:{tr:1}, result:'電話では「返すつもりはある」と言われましたが、その後の動きはありません。', review:'口頭の「つもり」は、後で確かめにくい。', next:'s3'},
+      {label:'共通の友人に間に入ってもらう', small:'関係の緩衝材を置く', fx:{tr:1,cl:1}, result:'話す機会はできましたが、金額の話は曖昧なまま終わりました。', review:'第三者は関係の助け。金額の確定は別の作業。', next:'s3'}]},
+    s3:{phase:'証拠集め', title:'貸したことを示す線', text:`振込の記録はあります。贈与ではなく「貸した」ことを示す線が必要です。`, choices:[
+      {label:'LINEのやり取りを、送金前後から時系列に整理する', fx:{ev:2}, flag:'lineSet', result:'「貸してほしい」「来月返す」という流れが一本に並びました。', review:'頼まれた経緯と返済の約束のセットが、貸付の姿になる。', next:'s4'},
+      {label:'振込時のメモ欄と、銀行の明細を確保する', fx:{ev:1,cl:1}, result:'振込のメモ欄には「貸付」と残っていました。小さいけれど意味のある記録です。', review:'送金時のメモは、その時の意思を示す材料になる。', next:'s4'},
+      {label:'返済に触れた発言のスクリーンショットを保存する', fx:{ev:2}, result:'「分割でもいいか」という友人の発言が保存できました。返す前提の発言です。', review:'相手の「返す前提」の発言は、贈与の反論を崩す。', next:'s4'}]},
+    s4:{phase:'ルールを調べる', title:'借用書がないとダメなのか', text:`貸し借りの立証の考え方を確認します。`, noteKey:'rule', choices:[
+      {label:'弁護士の無料相談で見通しを聞く', fx:{cl:2}, result:'「振込と返済の発言があれば、借用書がなくても戦えます」と整理されました。', review:'書面の有無より、記録の組合せが立証を作る。', next:'s5'},
+      {label:'消費貸借の考え方を自分で調べる', fx:{cl:1,ev:1}, result:'受け渡しで成立すること、時効の考え方が分かりました。', review:'自分で調べると骨格は掴める。当てはめは相談に劣る。', next:'s5'}]},
+    s5:{phase:'交渉', title:'返済要求の置き方', text:`友人に要求を伝えます。`, noteKey:'negotiation', choices:[
+      {label:'全額を、期限を切って請求する', fx:{cl:1}, flag:'demandFull', result:'友人は「今は無理だ」と言いましたが、金額を争う姿勢は見せませんでした。', review:'期限を切る請求は、遅延の始まりを明確にする。', next:'s6'},
+      {label:'分割払いの計画を出すよう求める', fx:{cl:1,tr:1}, flag:'demandPartial', result:'友人は月2万円の分割案を出してきました。総額では全額の前提です。', review:'分割案を引き出すことは、債務の前提を固めることにもなる。', next:'s6'},
+      {label:'まず「返す意思があるか」だけを確かめる', fx:{ev:1}, result:'「意思はある」という返信が残りました。金額の話はこれからです。', review:'意思の確認は土台作り。金額の確定は別の段階。', next:'s6'}]},
+    s6:{phase:'交渉', title:'友人からの提案', doc:`「今出せるのは50,000円だけだ。これで終わりにしてくれ」`, text:`友人から提案がありました。`, choices:[
+      {label:'50,000円で終わりにする', fx:{}, ending:'settle50', review:'関係を優先した終わり方。金額は大きく譲る形。'},
+      {label:'200,000円までなら分割でもいいと逆提案する', fx:{}, result:'友人が考え込む様子を見せました。', review:'逆提案は記録の材料があるほど通りやすい。', next:'s6b'},
+      {label:'断って、手続を考える', fx:{}, review:'友人関係の交渉の場を離れる選択。', next:'s8'}]},
+    s6b:{phase:'交渉', title:'逆提案の結果', doc:`「120,000円を分割で。それが限界だ」`, text:`返答がありました。`, choices:[
+      {label:'120,000円の分割で和解する', fx:{}, ending:'settle120', review:'当初の提示から70,000円動かした和解。'},
+      {label:'断って、手続を考える', fx:{}, review:'確実さを手放す選択。', next:'s8'}]},
+    s8:{phase:'手続', title:'友人を相手に、どの場で', text:`請求は270,000円。`, noteKey:'procedure', choices:[
+      {label:'少額訴訟を選ぶ', small:'27万円の請求は対象内', fx:{cl:1}, result:'争点をコンパクトにまとめることが求られました。', review:'少額訴訟は速さが魅力。', next:'s9'},
+      {label:'民事調停を申し立てる', small:'話し合いの場を持つ', fx:{tr:1,cl:1}, result:'調停では返済計画の話が中心になりましたが、合意には届きませんでした。', review:'調停は分割の合意など柔らかい解決が作れる。', next:'s9'},
+      {label:'通常訴訟を起こす', small:'じっくり争える', fx:{ev:1}, result:'追加の記録を集める時間が生まれました。', review:'通常訴訟は証拠を積める。時間もかかる。', next:'s9'}]},
+    s9:{phase:'証拠', title:'審理に出す中心資料', text:`貸したことと、返す約束をどう示すか。`, noteKey:'proof', choices:[
+      {label:'振込記録とLINEの時系列をセットで出す', fx:{ev:2,cl:1}, result:'お金の流れと約束の流れが、並んで見える形になりました。', review:'流れのセットは、個人間の貸借の立証の中心。', next:'s10'},
+      {label:'返済に触れた発言を中心に出す', fx:{ev:2}, result:'返す前提の発言は強いですが、金額の土台は別で支える必要があります。', review:'発言は約束の証拠。金額は振込記録が支える。', next:'s10'},
+      {label:'自分の生活状況と、贈与ではあり得ない事情を出す', fx:{cl:1,ev:1}, result:'事情は伝わりますが、直接の記録と比べると補助的です。', review:'事情の資料は補助線。中心はお金と発言の記録。', next:'s10'}]},
+    s10:{phase:'相手の主張', title:'「あれは、もらったものだ」', text:`友人側は主張しました。「困っているのを見かねて、くれたものだ。返す約束もしていない」。反論の軸を選びます。`, choices:[
+      {label:'「来月必ず返す」という発言そのものを示して反論する', fx:{cl:2,ev:1}, result:'約束の言葉が、贈与の主張と真っ向からぶつかりました。', review:'約束の発言は、この事件の正面の武器。', next:'s11'},
+      {label:'振込のメモ欄「貸付」と、金額の事情を軸に反論する', fx:{ev:2}, result:'送金の形そのものが、贈与らしくないことが示されました。', review:'メモ欄や金額の形は、意思の推認材料になる。', next:'s11'},
+      {label:'その後の「分割でもいいか」という発言を軸に反論する', fx:{cl:1,ev:1}, result:'返す前提で話していた経緯が並びました。', review:'後日の発言も、最初の合意を裏付ける材料になる。', next:'s11'}]},
+    s11:{phase:'裁判官からの質問', title:'「なぜ借用書を作らなかったのですか？」', text:`期日。裁判官が確かめます。`, noteKey:'credibility', choices:[
+      {label:'「友人を信頼していたからです。その代わり、記録は全部残しました」と答える', fx:{tr:2}, result:'記録の束と答えが一致し、裁判官が頷きました。', review:'作らなかった理由と、代わりの記録を示す答えは筋が通る。', next:'s12'},
+      {label:'「普通、友人同士で作りません」と一般論で答える', fx:{tr:-1}, result:'「この事件の記録で示してください」と返されました。', review:'一般論は、この事件の立証には届かない。', next:'s12'},
+      {label:'「弱かった点です」と認め、発言の記録で補ってきた経緯を答える', fx:{tr:1,cl:1}, result:'認める部分と補ってきた部分が分かれ、話が具体的になりました。', review:'弱点を認める答えは、全体の信用を守ることがある。', next:'s12'}]},
+    s12:{phase:'和解勧告', title:'判決か、和解か', preNoteKey:'negotiation', text:`裁判官から和解案が示されました。「190,000円を分割で支払う形でまとめる案を考えています」`, choices:[
+      {label:'和解案を受け入れる（190,000円・分割）', fx:{}, ending:'judgeSettle', review:'分割の確実性と引き換えの和解。'},
+      {label:'受け入れず、判決をもらう', fx:{}, ending:'verdict', review:'判決では記録の評価がそのまま金額になる。'}]}
+  }
+});
+
+/* ============ 事件11：レンタルカメラ（被告側） ============ */
+CASES.push({
+  id:'rental', icon:'🎥', title:'レンタルカメラの45万円請求', cat:'消費者', claim:450000, claimLabel:'業者からの請求 450,000円（あなたは被告側）', time:'約11分',
+  desc:'撮影の仕事で借りたカメラを転倒させてしまった。過失はある。でも業者からの請求は、新品価格＋休業損害で45万円。金額を争う、被告側の事件。',
+  notes:{ rule:{title:'📘 要所ノート ― 損害賠償は「時価」と「立証された損害」', body:`物を壊した場合の損害賠償は、原則として壊れた物の「時価（中古としての価値）」が基準で、新品価格がそのまま認められるわけではありません。\n貸し出せなかった期間の休業損害のようなお金は、実際に予約が入っていたかなど、損害の発生を請求する側が示す必要があります。レンタル時の補償オプションに加入していれば、自己負担の上限が定められていることがあります。まず契約と加入控えを確認することが、金額を争う出発点です。`} },
+  knowledge:[
+    '<b>物損の基準は時価。</b>新品価格の請求を、そのまま飲む必要はない。',
+    '<b>休業損害は立証が要る。</b>予約の実績など、請求する側が示すもの。',
+    '<b>補償オプションの控えは必ず確認。</b>自己負担に上限がある場合がある。',
+    '<b>過失を認めることと、金額を認めることは別。</b>分けて話すと争点が整理される。',
+    '<b>相場資料は自分でも集められる。</b>同型機の中古価格が、時価の物差しになる。'],
+  endings:{
+    pay350:{title:'示談（350,000円を支払う）', amount:350000, body:'業者の提示350,000円で示談した。早く終わるが、新品に近い価格を飲んだ形になった。'},
+    pay260:{title:'交渉で示談（260,000円を支払う）', amount:260000, body:'逆提案で当初の請求から90,000円下がった示談になった。'},
+    judgePay:{title:'裁判上の和解（210,000円を支払う）', amount:210000, body:'裁判官の和解案210,000円を支払うことで終了。時価の資料が水準を下げた。'}},
+  verdict:{mode:'payment', items:[
+    {label:'カメラ本体の損害', claimed:300000, stat:'ev', hi:5, lo:3, amounts:[140000,220000,300000], why:'同型機の中古相場など、時価を示す資料を出せたかで変わった。'},
+    {label:'休業損害', claimed:100000, stat:'cl', hi:5, lo:3, amounts:[0,40000,100000], why:'予約の実績など、休業の立証を業者に求める主張ができたかで変わった。'},
+    {label:'手数料名目の請求', claimed:50000, stat:'cl', hi:99, lo:98, flagGood:'hoken', amounts:[0,20000,50000], why:'補償オプションに加入していたかどうかが、そのまま影響した。'}]},
+  scenes:{
+    intro:{phase:'発端', title:'請求書45万円', text:`撮影の現場で、三脚ごとカメラが転倒し、レンズとボディを破損させてしまった。過失はこちらにある。ところが業者から届いた請求は、想像よりずっと大きかった。`, doc:`【業者からの請求】\n本体損害（新品価格）300,000円\n休業損害 100,000円\n手数料 50,000円\n合計 450,000円`, choices:[{label:'請求の中身を、一つずつ確かめることにする', next:'s2'}]},
+    s2:{phase:'最初の一歩', title:'業者への最初の対応', text:`謝るべきことと、金額の話は分けて考える必要があります。`, noteKey:'record', choices:[
+      {label:'謝罪と事故の状況報告を、書面で先に送る', small:'事実は認め、金額は保留する形', fx:{tr:1,cl:1}, result:'業者の態度は落ち着きました。金額については「内訳をください」と伝えました。', review:'事実の報告と金額の承諾を分ける対応が、後の争い方を作る。', next:'s3'},
+      {label:'まず補償オプションに加入していたかを確認する', small:'契約の控えから固める', fx:{cl:1,ev:1}, result:'確認作業を始めることを業者に伝え、支払いの即答は避けました。', review:'補償の有無は金額の上限を動かす。先に確かめる価値がある。', next:'s3'},
+      {label:'電話で「払います」と言ってしまう前に、請求の内訳を求める', small:'即答を避け、根拠から入る', fx:{cl:2}, result:'業者から見積書が送られてきました。本体は新品価格で計算されていました。', review:'内訳を求めることは、金額を争う土台作り。', next:'s3'}]},
+    s3:{phase:'証拠集め', title:'金額を確かめる材料', text:`争いの中心は、過失の有無ではなく金額です。`, choices:[
+      {label:'レンタル契約書と、補償オプションの加入控えを探す', fx:{cl:1,ev:1}, flag:'hoken', result:'加入控えが見つかりました。補償には自己負担の上限が書かれていました。', review:'加入控えは、手数料や負担上限に直結する。', next:'s4'},
+      {label:'同型カメラの中古相場を調べる', fx:{ev:2}, result:'中古相場は14万円前後。新品価格とは大きな差がありました。', review:'相場資料は、時価を争う正面の材料になる。', next:'s4'},
+      {label:'転倒時の状況をメモと写真で残す', fx:{ev:1,cl:1}, result:'突風があったことと、三脚の状態を記録しました。過失の程度の話に使えます。', review:'状況の記録は、過失の程度と金額の両方に効く。', next:'s4'}]},
+    s4:{phase:'ルールを調べる', title:'新品価格を払う義務はあるのか', text:`損害賠償の金額の考え方を確認します。`, noteKey:'rule', choices:[
+      {label:'弁護士の無料相談で、時価の考え方を聞く', fx:{cl:2}, result:'「基準は時価です。休業損害は相手の立証の問題です」と整理されました。', review:'時価と立証の分配が、この事件の地図になる。', next:'s5'},
+      {label:'損害賠償の考え方を自分で調べる', fx:{cl:1,ev:1}, result:'時価の考え方の骨格は掴めました。当てはめには不安が残ります。', review:'自分で調べると骨格は掴める。相場の資料とセットで使う。', next:'s5'}]},
+    s5:{phase:'交渉', title:'こちらの姿勢の置き方', text:`業者に、こちらの姿勢を伝えます。`, noteKey:'negotiation', choices:[
+      {label:'過失は認め、金額は時価ベースで協議したいと伝える', fx:{cl:1,tr:1}, flag:'admitFault', result:'業者は金額の協議に応じる姿勢を見せました。争点が整理されました。', review:'過失と金額を分ける姿勢は、協議を前に進める。', next:'s6'},
+      {label:'時価ベースの金額をこちらから提示する', fx:{cl:2}, result:'こちらの提示が交渉のアンカーになりました。', review:'根拠のある提示は、相手の高い請求への対抗になる。', next:'s6'},
+      {label:'全額を争う姿勢を示す', fx:{tr:-1,cl:1}, result:'業者は態度を硬化させました。協議は止まり気味です。', review:'過失まである事件では、全否定は信用を落としやすい。', next:'s6'}]},
+    s6:{phase:'交渉', title:'業者からの提案', doc:`「350,000円までなら下げます。これで終わりにしませんか」`, text:`業者から提案が来ました。`, choices:[
+      {label:'350,000円を支払って示談する', fx:{}, ending:'pay350', review:'早期の示談は、新品に近い価格を飲む形。'},
+      {label:'180,000円なら支払うと逆提案する', fx:{}, result:'業者が社内で検討することになりました。', review:'逆提案は時価の資料があるほど通りやすい。', next:'s6b'},
+      {label:'断って、手続で争うことにする', fx:{}, review:'金額を判断の場で争う選択。', next:'s8'}]},
+    s6b:{phase:'交渉', title:'逆提案の結果', doc:`「260,000円が限度です」`, text:`返答がありました。`, choices:[
+      {label:'260,000円を支払って示談する', fx:{}, ending:'pay260', review:'当初の請求から90,000円下げた示談。'},
+      {label:'断って、手続で争う', fx:{}, review:'確実さを手放す選択。', next:'s8'}]},
+    s8:{phase:'手続', title:'訴えられた側として、どの場で', text:`業者から手続の申立てがありました。応じ方を選びます。`, noteKey:'procedure', choices:[
+      {label:'民事調停で、金額の話し合いをする', fx:{tr:1,cl:1}, result:'調停では時価の資料をもとに話されましたが、合意には届きませんでした。', review:'調停は金額の落としどころを探る場になる。', next:'s9'},
+      {label:'訴訟で金額を正面から争う', fx:{cl:1}, result:'答弁書では、過失は認めた上で金額の根拠を争う形にしました。', review:'認める部分と争う部分を分けた答弁は、信用を守る。', next:'s9'},
+      {label:'通常訴訟で、資料を集めてから争う', fx:{ev:1}, result:'相場や補償の資料を集める時間が生まれました。', review:'時間を使って資料を積む進め方もある。', next:'s9'}]},
+    s9:{phase:'証拠', title:'審理に出す中心資料', text:`金額を下げるのは、時価と補償の資料です。`, noteKey:'proof', choices:[
+      {label:'中古相場の資料と、補償の加入控えをセットで出す', fx:{ev:2,cl:1}, result:'時価と負担上限が、並んで見える形になりました。', review:'相場＋補償のセットは、被告側の中心資料になる。', next:'s10'},
+      {label:'転倒時の状況資料を中心に出す', fx:{ev:1,cl:1}, result:'過失の程度は伝わりますが、金額の土台は別で支える必要があります。', review:'状況の資料は程度の問題。金額は時価の資料が中心。', next:'s10'},
+      {label:'業者の見積の内訳の疑問点を一覧にして出す', fx:{cl:2}, result:'新品価格で計算されている点が、一覧で明確になりました。', review:'相手の計算の疑問点を一覧にすると、争点が鋭くなる。', next:'s10'}]},
+    s10:{phase:'相手の主張', title:'「新品同等の価値が失われた」', text:`業者側は主張しました。「レンタル機材は新品同等の状態で貸している。失われた価値は新品価格だ」。反論の軸を選びます。`, choices:[
+      {label:'損害賠償の基準は時価だと、中古相場を示して反論する', fx:{cl:2,ev:1}, result:'相場の資料が、新品価格の主張とぶつかりました。', review:'時価の反論は、相場という物差しとセットで効く。', next:'s11'},
+      {label:'休業損害は、実際の予約が入っていたことを業者が示すべきだと反論する', fx:{cl:2}, result:'業者からは、期間中の具体的な予約の資料は出てきませんでした。', review:'休業損害は立証の分配が勝負になる。', next:'s11'},
+      {label:'補償オプションの適用範囲を軸に反論する', fx:{cl:1,ev:1}, result:'補償の約款の読み方が争点になりました。', review:'補償の反論は、加入控えと約款が土台になる。', next:'s11'}]},
+    s11:{phase:'裁判官からの質問', title:'「転倒自体は、あなたの不注意ですね？」', text:`期日。裁判官が確かめます。`, noteKey:'credibility', choices:[
+      {label:'「はい。過失は認めます。争っているのは金額の基準です」と分けて答える', fx:{tr:2}, result:'争点が金額だけに絞られ、資料の話に移りました。', review:'認める部分を認める答えは、争う部分の信用を作る。', next:'s12'},
+      {label:'「突風もありましたし、全部が私のせいとは…」と言いよどむ', fx:{tr:-1}, result:'「過失の割合と金額、どちらを争うのですか」と整理を求められました。', review:'争点がぼやけると、全体の信用が落ちやすい。', next:'s12'},
+      {label:'状況を具体的に答え、三脚の固定の状態にも触れる', fx:{tr:1,ev:1}, result:'転倒の経緯が具体的に共有されました。', review:'具体的な状況の説明は、程度の評価に使われる。', next:'s12'}]},
+    s12:{phase:'和解勧告', title:'判決か、和解か', preNoteKey:'negotiation', text:`裁判官から和解案が示されました。「210,000円の支払いでまとめる案を考えています」`, choices:[
+      {label:'和解案を受け入れる（210,000円を支払う）', fx:{}, ending:'judgePay', review:'支払額をここで確定させる和解。'},
+      {label:'受け入れず、判決をもらう', fx:{}, ending:'verdict', review:'判決では時価と立証の評価がそのまま支払額になる。'}]}
+  }
+});
+
+/* ============ 事件12：写真の無断使用 ============ */
+CASES.push({
+  id:'shashin', icon:'📸', title:'広告に使われた私の写真', cat:'インターネット', claim:300000, claimLabel:'慰謝料等請求 300,000円', time:'約11分',
+  desc:'自分のSNSに載せた顔写真が、地元のエステサロンの広告に無断で使われていた。知人の連絡で気づいた。',
+  notes:{ rule:{title:'📘 要所ノート ― 肖像権と「公開＝許可」ではないこと', body:`自分の顔や姿を無断で使われないという肖像の利益は、判例上、人格的な権利として認められています。明文の法律があるわけではありませんが、特に広告のような営利目的での利用は、違法とされやすい類型です。\nSNSに写真を公開していても、それは「誰が何に使ってもよい」という許可ではありません。慰謝料の額は、使われた範囲（チラシか、ネット広告か）、期間、本人の社会的立場など、使い方の具体的な中身で変わります。本作では、自分で撮影した写真の肖像を中心に扱います。`} },
+  knowledge:[
+    '<b>SNSで公開しても、無断利用の許可にはならない。</b>特に営利目的の広告利用は違法とされやすい。',
+    '<b>広告は消される前に保存する。</b>画面の保存と日付が、使用の範囲と期間の証拠になる。',
+    '<b>慰謝料は使い方の中身で変わる。</b>範囲・期間・目的を具体的に示すことが金額につながる。',
+    '<b>まず削除を求める記録も大事。</b>要請したのに使い続けた期間は、評価に影響しうる。',
+    '<b>肖像の権利は判例で認められた人格的利益。</b>明文の条文がない分野もある。'],
+  endings:{
+    settle30:{title:'削除と少額で和解（30,000円）', amount:30000, body:'写真は削除され、30,000円で和解した。早いが、使われた範囲を考えると安い決着だった。'},
+    settle80:{title:'交渉で和解（80,000円）', amount:80000, body:'逆提案で当初の提示から50,000円上がった和解。'},
+    judgeSettle:{title:'裁判上の和解（170,000円）', amount:170000, body:'裁判官の和解案170,000円で終了。使用範囲の資料が水準を押し上げた。'}},
+  verdict:{mode:'award', items:[
+    {label:'慰謝料', claimed:250000, stat:'evcl', hi:9, lo:6, amounts:[220000,130000,40000], why:'使用の範囲・期間・営利目的であることを示せたかが、慰謝料を分けた。'},
+    {label:'調査・削除要請の費用', claimed:50000, stat:'ev', hi:4, lo:2, amounts:[40000,20000,0], why:'保存や要請にかかった手間と記録を示せたかで変わった。'}]},
+  scenes:{
+    intro:{phase:'発端', title:'知人からのスクリーンショット', text:`知人から「これ、あなたじゃない？」とスクショが届いた。地元のエステサロンの広告に、自分のSNSに載せた顔写真が使われている。許可した覚えはない。広告はチラシとSNS広告の両方に出ているようだ。`, doc:`【分かっていること】\n使用した相手 地元のエステサロン\n使われ方 チラシ＋SNS広告\n許可 していない`, choices:[{label:'消される前に、使用の証拠を残すことにする', next:'s2'}]},
+    s2:{phase:'最初の一歩', title:'サロンへの連絡の仕方', text:`まずは証拠の保存と、相手への連絡です。順番が大事になります。`, noteKey:'record', choices:[
+      {label:'広告の画面を保存してから、メールで削除と説明を求める', small:'保存→連絡の順番を守る', fx:{ev:2,cl:1}, flag:'savedFirst', result:'チラシの写真とSNS広告の画面が、日付と一緒に保存できました。その上で連絡しました。', review:'消えるものは先に保存する。順番そのものが立証を作る。', next:'s3'},
+      {label:'まず電話で抗議し、削除を求める', small:'早いが、保存は後回しになる', fx:{tr:1}, result:'サロンはすぐにSNS広告を削除しました。使われていた範囲の記録は、一部しか残りませんでした。', review:'削除は早まったが、使用範囲の証拠も一緒に消えた。', next:'s3'},
+      {label:'いきなり内容証明で慰謝料を請求する', small:'強い意思表示', fx:{cl:2,tr:-1}, flags:['record'], result:'サロンは弁護士に相談し始めました。削除はされましたが、話し合いは硬くなりました。', review:'強い手段は記録になる。関係は硬くなる。', next:'s3'}]},
+    s3:{phase:'証拠集め', title:'使用の範囲と期間を追う', text:`慰謝料の中身は「どう使われたか」です。`, choices:[
+      {label:'チラシの配布エリアと、広告の表示期間を調べる', fx:{ev:2}, result:'チラシは近隣の数千世帯に配られ、SNS広告は2か月ほど出ていたことが分かりました。', review:'範囲と期間の具体化が、慰謝料の物差しになる。', next:'s4'},
+      {label:'元のSNS投稿と、写真の元データを確保する', fx:{ev:1,cl:1}, result:'投稿の日付と元データが揃い、自分の写真であることが示せる形になりました。', review:'元の投稿は、写真の帰属と時期を示す。', next:'s4'},
+      {label:'広告を見た知人たちの連絡を保存する', fx:{cl:1,ev:1}, result:'複数の知人が広告を見ていたことが分かりました。拡散の実態が見えてきます。', review:'第三者の反応は、公表の範囲を示す補助材料になる。', next:'s4'}]},
+    s4:{phase:'ルールを調べる', title:'公開していた写真は、使ってよいのか', text:`相手は「公開されていたから」と言いそうです。その理屈を確認します。`, noteKey:'rule', choices:[
+      {label:'弁護士の無料相談で、肖像の考え方を聞く', fx:{cl:2}, result:'「公開は利用の許可ではありません。広告利用は特に重い類型です」と整理されました。', review:'公開と許可の区別が、この事件の正面になる。', next:'s5'},
+      {label:'判例や解説を自分で調べる', fx:{cl:1,ev:1}, result:'明文の条文はなく、判例の積み重ねで認められた権利だと分かりました。', review:'条文のない分野は、類型の当てはめが中心になる。', next:'s5'}]},
+    s5:{phase:'交渉', title:'要求の置き方', text:`サロンに要求を伝えます。`, noteKey:'negotiation', choices:[
+      {label:'削除の確認と、慰謝料300,000円を請求する', fx:{cl:1}, flag:'demandFull', result:'サロンは「悪気はなかった」と言い、金額には難色を示しました。', review:'金額の要求は、使用の範囲の資料が支えになる。', next:'s6'},
+      {label:'まず削除と謝罪文を優先し、金額はその次に話す', fx:{cl:1,tr:1}, flag:'demandPartial', result:'削除と謝罪は得られました。金額の話はこれからです。', review:'非金銭の要求を先に取る進め方は、誠意の有無も測れる。', next:'s6'},
+      {label:'正規の使用料に相当する額での解決を提案する', fx:{ev:1,cl:1}, result:'サロン側の使用料の感覚と、こちらの考える額の差が明らかになりました。', review:'使用料の物差しは、慰謝料とは別の考え方になる。', next:'s6'}]},
+    s6:{phase:'交渉', title:'サロンからの提案', doc:`「写真は削除しました。お詫びとして30,000円をお支払いします」`, text:`サロンから提案が来ました。`, choices:[
+      {label:'30,000円で和解する', fx:{}, ending:'settle30', review:'削除＋少額の和解は速い。使用の範囲は置いていく形。'},
+      {label:'200,000円なら和解すると逆提案する', fx:{}, result:'サロンがオーナーと相談することになりました。', review:'逆提案は使用範囲の資料があるほど通りやすい。', next:'s6b'},
+      {label:'断って、手続を考える', fx:{}, review:'交渉の場を離れる選択。', next:'s8'}]},
+    s6b:{phase:'交渉', title:'逆提案の結果', doc:`「80,000円が限度です」`, text:`返答がありました。`, choices:[
+      {label:'80,000円で和解する', fx:{}, ending:'settle80', review:'当初の提示から50,000円動かした和解。'},
+      {label:'断って、手続を考える', fx:{}, review:'確実さを手放す選択。', next:'s8'}]},
+    s8:{phase:'手続', title:'どの場で争うか', text:`請求は300,000円。`, noteKey:'procedure', choices:[
+      {label:'少額訴訟を選ぶ', small:'30万円の請求は対象内', fx:{cl:1}, result:'争点をコンパクトにまとめることが求られました。', review:'少額訴訟は速さが魅力。', next:'s9'},
+      {label:'通常訴訟を起こす', small:'じっくり争える', fx:{ev:1}, result:'使用範囲の資料を集める時間が生まれました。', review:'通常訴訟は証拠を積める。時間もかかる。', next:'s9'},
+      {label:'民事調停を申し立てる', small:'話し合いの場を持つ', fx:{tr:1,cl:1}, result:'言い分は整理されましたが、合意には届きませんでした。', review:'調停は合意がなければ決着しない。整理は残る。', next:'s9'}]},
+    s9:{phase:'証拠', title:'審理に出す中心資料', text:`どう使われたか、をどう示すか。`, noteKey:'proof', choices:[
+      {label:'広告の保存画面と、配布・表示の範囲をセットで出す', fx:{ev:2,cl:1}, result:'使い方の具体像が、一目で見える形になりました。', review:'範囲のセットは、慰謝料の立証の中心。', next:'s10'},
+      {label:'元の投稿と元データを中心に出す', fx:{ev:2}, result:'写真の帰属は明確になりましたが、使われ方は別で支える必要があります。', review:'帰属の立証と、使用の立証は役割が違う。', next:'s10'},
+      {label:'削除要請と、その後の経緯を中心に出す', fx:{cl:1,ev:1}, result:'要請の経緯は伝わりますが、使用の範囲は弱いままです。', review:'経緯は評価の補助。中心は使用の具体像。', next:'s10'}]},
+    s10:{phase:'相手の主張', title:'「公開されていた写真だから」', text:`サロン側は主張しました。「SNSで誰でも見られる写真だった。悪気はなく、売上げにもつながっていない」。反論の軸を選びます。`, choices:[
+      {label:'公開は利用の許可ではなく、広告という営利利用が問題だと反論する', fx:{cl:2}, result:'公開と許可の区別が、正面の争いになりました。', review:'営利目的の利用は、違法性の評価で重く見られやすい。', next:'s11'},
+      {label:'配布範囲と表示期間の大きさを軸に反論する', fx:{ev:2}, result:'使われ方の規模が、数字で示されました。', review:'規模の具体化は、慰謝料の額の話に直結する。', next:'s11'},
+      {label:'削除を求めた後の対応の経緯を軸に反論する', fx:{cl:1,ev:1}, result:'要請から削除までの期間が、争いになりました。', review:'要請後の対応は、相手の姿勢の評価材料になる。', next:'s11'}]},
+    s11:{phase:'裁判官からの質問', title:'「何が一番、傷つきましたか？」', text:`期日。裁判官が静かに尋ねました。慰謝料の事件らしい質問です。`, noteKey:'credibility', choices:[
+      {label:'自分の顔が商品の広告と結びついて広がったことを、知人の反応と一緒に具体的に答える', fx:{tr:2}, result:'具体的な答えに、裁判官が頷きました。', review:'慰謝料では、被害の具体像を自分の言葉で示すことが中心になる。', next:'s12'},
+      {label:'「とにかく許せません」と感情をまとめて答える', fx:{tr:-1}, result:'「具体的にどの使われ方が、という点は」と重ねて聞かれました。', review:'感情だけでは、額の根拠に届きにくい。', next:'s12'},
+      {label:'金額の根拠にしたい使用の範囲を、資料に沿って答える', fx:{tr:1,cl:1}, result:'資料と答えが結びつき、話が具体的になりました。', review:'資料に沿った答えは、心証と金額の両方に効く。', next:'s12'}]},
+    s12:{phase:'和解勧告', title:'判決か、和解か', preNoteKey:'negotiation', text:`裁判官から和解案が示されました。「170,000円の支払いでまとめる案を考えています」`, choices:[
+      {label:'和解案を受け入れる（170,000円）', fx:{}, ending:'judgeSettle', review:'確実な決着。上振れは置いていく。'},
+      {label:'受け入れず、判決をもらう', fx:{}, ending:'verdict', review:'判決では使用の評価がそのまま金額になる。'}]}
+  }
+});
+/* ============ 企業1：納品遅延 ============ */
+CASES.push({
+  id:'nouhin', icon:'🏭', title:'止まった製造ライン', cat:'企業法務', claim:8000000, claimLabel:'損害賠償請求 8,000,000円（自社・原告側）', time:'約13分',
+  desc:'あなたは中堅メーカーの法務担当。基幹部品の納品が3週間遅れてラインが止まった。代替調達の差額と逸失利益を、取引先に請求する。',
+  notes:{ rule:{title:'📘 要所ノート ― 債務不履行と損害の範囲（民法416条）', body:`契約通りに履行されなければ、債務不履行として損害賠償を請求できます（民法415条）。ただし賠償の範囲は、通常生じる損害（416条1項）と、相手が予見できた特別の事情による損害（同2項）に限られます。\nだから企業間の争いでは「損害の額」と同じくらい「相手にどこまで知らせていたか（重要部品だと伝えたか、遅れたらラインが止まると通知したか）」が効きます。催告や通知の書面は、請求の根拠であると同時に、予見可能性を作る行為でもあります。`},
+    proc:{title:'📘 要所ノート ― 取引を続ける相手と訴訟', body:`企業間の訴訟では、勝敗だけでなく取引関係の継続もコストに入ります。また契約書に仲裁合意や管轄の条項があると、訴える場所や手続自体が制限されることがあります。提訴前に契約書の紛争解決条項を確認するのは、企業法務の基本動作です。`} },
+  knowledge:[
+    '<b>損害賠償の範囲は民法416条。</b>特別な損害は、相手の予見可能性が鍵になる。',
+    '<b>催告・通知は「予見を作る行為」。</b>重要性を伝えた記録が、後の賠償範囲を広げる。',
+    '<b>提訴前に紛争解決条項を確認する。</b>仲裁合意や管轄条項が手続を決めることがある。',
+    '<b>逸失利益は立証が難しい。</b>生産計画や受注の記録で、止まった分の利益を裏付ける。',
+    '<b>相手の事情変更の主張には、再設定の記録。</b>仕様変更の後に納期をどう合意し直したかが効く。'],
+  endings:{
+    settle240:{title:'和解（2,400,000円）', amount:2400000, body:'相手の提示240万円で和解した。取引は続くが、損害の大半は自社に残った。'},
+    settle420:{title:'交渉で和解（4,200,000円）', amount:4200000, body:'逆提案で当初の提示から180万円上がった和解。取引継続の条件も付けた。'},
+    judgeSettle:{title:'裁判上の和解（5,600,000円）', amount:5600000, body:'裁判官の和解案560万円で終了。通知の記録が水準を押し上げた。'}},
+  verdict:{mode:'award', items:[
+    {label:'代替調達の追加費用', claimed:4800000, stat:'evcl', hi:9, lo:6, amounts:[4600000,3400000,1200000], why:'納期の合意と代替調達の必要性・金額を示せたかが分けた。'},
+    {label:'ライン停止の逸失利益', claimed:3200000, stat:'cl', hi:6, lo:4, amounts:[2400000,1200000,0], why:'部品の重要性を相手に知らせていたかという、予見可能性の主張が効いたかが分かれた。'}]},
+  scenes:{
+    intro:{phase:'発端', title:'納品日を過ぎても、部品が来ない', text:`あなたは中堅メーカーの法務担当。主力製品の基幹部品の納品が3週間遅れ、製造ラインが止まった。営業からは悲鳴、工場からは代替調達の見積が上がってきた。社長の一言は「損害は、取引先に出してもらえるんだろうな」。`, doc:`【損害の見込み】\n代替調達の追加費用 約4,800,000円\nライン停止の逸失利益 約3,200,000円\n合計 8,000,000円`, choices:[{label:'契約と経緯を確かめ、対応を組み立てる', next:'s2'}]},
+    s2:{phase:'初動', title:'取引先への最初のアクション', text:`相手は10年付き合いのある取引先です。最初の動きで、その後の土台が変わります。`, noteKey:'record', choices:[
+      {label:'内容証明で、納期の催告と損害が発生していることを通知する', small:'予見可能性を作る意味もある', fx:{cl:2,ev:1}, flags:['record','notified'], result:'相手から遅延を認める返信が来ました。損害発生の通知も、記録に残りました。', review:'催告と通知は、請求の根拠であると同時に予見可能性を作る。', next:'s3'},
+      {label:'まず代替調達を現場に優先させ、通知は後にする', small:'被害の拡大を止めることを優先', fx:{ev:1}, result:'ラインは再開しました。相手への正式な通知は、遅れて出すことになりました。', review:'被害拡大の防止は大事。通知の遅れは予見の主張に影響しうる。', next:'s3'},
+      {label:'電話で社長同士の協議を申し入れる', small:'関係を保ちながら進める', fx:{tr:1,cl:1}, result:'協議の場は持てましたが、遅延の責任については平行線でした。', review:'トップ協議は関係に効く。記録と論点の固定は別に必要。', next:'s3'}]},
+    s3:{phase:'証拠集め', title:'契約と記録を固める', text:`請求の土台は、契約書と日々の記録です。`, choices:[
+      {label:'基本契約書と発注書の、納期条項を確認する', fx:{cl:2}, result:'発注書には納期が明確に書かれ、遅延時の協議条項もありました。', review:'納期条項の明確さが、債務不履行の土台になる。', next:'s4'},
+      {label:'生産記録から、停止期間と影響を確定させる', fx:{ev:2}, result:'停止の日数と、影響を受けた受注が数字で並びました。', review:'逸失利益は、生産と受注の記録で裏付ける。', next:'s4'},
+      {label:'仕様変更をめぐる相手とのメールを全部集める', fx:{ev:1,cl:1}, result:'途中で1回、相手の求めで仕様の確認があったことが分かりました。相手の主張の種になりそうです。', review:'相手の材料も先に把握しておくと、反論の備えになる。', next:'s4'}]},
+    s4:{phase:'ルールを調べる', title:'損害の範囲はどこまでか', text:`8,000,000円の全額が、そのまま認められるわけではありません。`, noteKey:'rule', choices:[
+      {label:'顧問弁護士と、416条の当てはめを協議する', fx:{cl:2}, result:'「代替費用は通常損害に近く、逸失利益は予見の立証が勝負」と整理されました。', review:'損害の種類ごとに、立証の型が違う。', next:'s5'},
+      {label:'社内の記録から、部品の重要性を伝えた資料を探す', fx:{cl:1,ev:1}, result:'契約時の打ち合わせ資料に「基幹部品のため納期厳守」と書かれていました。', review:'重要性の伝達の記録は、予見可能性の直接の材料。', next:'s5'}]},
+    s5:{phase:'交渉', title:'請求の置き方', text:`取引先に請求を伝えます。今後の取引も視野に入れます。`, noteKey:'negotiation', choices:[
+      {label:'損害の全額、800万円を請求する', fx:{cl:1}, flag:'demandFull', result:'相手は「仕様変更の影響もある」と反論してきました。', review:'全額請求はアンカー。相手の帰責の主張への備えが要る。', next:'s6'},
+      {label:'代替費用を中心に請求し、逸失利益は協議の材料にする', fx:{cl:1,tr:1}, flag:'demandPartial', result:'相手は協議に前向きになりました。譲歩の幅は自分で作る形です。', review:'確実な損害から置く進め方は、協議を具体化させる。', next:'s6'},
+      {label:'まず遅延の原因と責任の協議から始める', fx:{ev:1}, result:'原因の協議で、仕様確認に要した日数が数日分あることが分かりました。', review:'原因の確定は先にやると後の金額協議が速い。弱点も先に見える。', next:'s6'}]},
+    s6:{phase:'交渉', title:'取引先からの提案', doc:`「仕様変更の影響もあります。当社としては損害の3割、240万円までならお支払いできます」`, text:`提案が来ました。`, choices:[
+      {label:'240万円で和解する', fx:{}, ending:'settle240', review:'取引継続を優先した和解。損害の大半は残る。'},
+      {label:'650万円なら和解すると逆提案する', fx:{}, result:'相手が社内で検討することになりました。', review:'逆提案は通知や記録の材料があるほど通りやすい。', next:'s6b'},
+      {label:'断って、手続を考える', fx:{}, review:'交渉の場を離れる選択。', next:'s8'}]},
+    s6b:{phase:'交渉', title:'逆提案の結果', doc:`「420万円が限度です。今後の取引条件の見直しも含めて」`, text:`返答がありました。`, choices:[
+      {label:'420万円で和解する', fx:{}, ending:'settle420', review:'当初の提示から180万円動かし、取引条件も付けた和解。'},
+      {label:'断って、手続を考える', fx:{}, review:'確実さを手放す選択。', next:'s8'}]},
+    s8:{phase:'手続', title:'提訴前の確認と場の選択', text:`請求額は800万円。場の選択と、契約書の条項の確認が必要です。`, noteKey:'proc', choices:[
+      {label:'通常訴訟を提起する', fx:{cl:1}, result:'訴状では、損害を種類ごとに分けて主張する形にしました。', review:'企業間訴訟は、損害の種類ごとの立証が中心になる。', next:'s9'},
+      {label:'民事調停を申し立てる', small:'取引継続を視野に入れた話し合い', fx:{tr:1,cl:1}, result:'調停では原因の協議は進みましたが、金額は折り合いませんでした。', review:'調停は関係を保ちやすい。合意がなければ決着しない。', next:'s9'},
+      {label:'契約書の仲裁条項を確認した上で、仲裁の準備をする', fx:{cl:2}, result:'契約には仲裁合意がありました。手続の進め方が変わります。', review:'仲裁合意があると訴訟ができないことがある。確認自体が実務の要。', next:'s9'}]},
+    s9:{phase:'証拠', title:'審理に出す中心資料', text:`損害の種類ごとに、資料の役割が違います。`, noteKey:'proof', choices:[
+      {label:'契約・発注書と、重要性を伝えた資料をセットで出す', fx:{cl:2,ev:1}, result:'納期の合意と予見の材料が、並んで見える形になりました。', review:'合意＋伝達のセットは、416条の争いの中心。', next:'s10'},
+      {label:'代替調達の見積・発注記録を中心に出す', fx:{ev:2}, result:'追加費用の必要性と金額が示せました。逸失利益は別で支える必要があります。', review:'代替費用は実損害として示しやすい。役割の違う資料を混同しない。', next:'s10'},
+      {label:'生産記録と受注資料を中心に出す', fx:{ev:1,cl:1}, result:'停止の影響は示せましたが、予見の話は弱いままです。', review:'影響の資料は額の話。予見は伝達の資料が支える。', next:'s10'}]},
+    s10:{phase:'相手の主張', title:'「遅延は御社の仕様変更が原因だ」', text:`取引先側は主張しました。「途中の仕様変更の確認に時間を取られた。遅延の責任は半分だ」。反論の軸を選びます。`, choices:[
+      {label:'変更確認の後、納期を再確認したメールを示して反論する', fx:{cl:2,ev:1}, result:'再設定された納期と、その後の遅延が切り分けられました。', review:'再設定の記録は、帰責の切り分けに正面から効く。', next:'s11'},
+      {label:'変更の影響は一部の工程だけだと、工程表で反論する', fx:{ev:2}, result:'変更の影響範囲が、全体の遅延より小さいことが示されました。', review:'影響範囲の具体化は、割合の話を数字にする。', next:'s11'},
+      {label:'遅延が見えた時点で予告がなかったことを軸に反論する', fx:{cl:1,ev:1}, result:'予告があれば代替が早くできた、という話になりました。', review:'予告の有無は、損害拡大の責任の話につながる。', next:'s11'}]},
+    s11:{phase:'裁判官からの質問', title:'「ライン停止の損害は、相手方が予見できましたか？」', text:`期日。416条の核心の質問です。`, noteKey:'credibility', choices:[
+      {label:'契約時に基幹部品と伝えた資料と、遅延発生時の通知を示して答える', fx:{tr:2}, result:'資料と答えが一致し、裁判官が頷きました。', review:'予見の答えは、伝えた資料とセットで初めて立つ。', next:'s12'},
+      {label:'「取引先なら当然分かるはずです」と答える', fx:{tr:-1}, result:'「当然の根拠となる資料はありますか」と重ねて聞かれました。', review:'当然という言葉は、資料の代わりにはならない。', next:'s12'},
+      {label:'生産計画の細部は共有していなかったと認め、その範囲で限定して答える', fx:{tr:1,cl:1}, result:'認める範囲と主張する範囲が分かれ、話が具体的になりました。', review:'限定した答えは、伝えた部分の信用を高める。', next:'s12'}]},
+    s12:{phase:'和解勧告', title:'判決か、和解か', preNoteKey:'negotiation', text:`裁判官から和解案が示されました。「560万円の支払いと、今後の納期管理の条項を入れる案を考えています」`, choices:[
+      {label:'和解案を受け入れる（560万円）', fx:{}, ending:'judgeSettle', review:'金額と今後の条項をセットで得る和解。'},
+      {label:'受け入れず、判決をもらう', fx:{}, ending:'verdict', review:'判決では予見可能性の評価がそのまま金額になる。'}]}
+  }
+});
+
+/* ============ 企業2：システム開発 ============ */
+CASES.push({
+  id:'system', icon:'🖥️', title:'動かない基幹システム', cat:'企業法務', claim:12000000, claimLabel:'開発費返還・損害賠償請求 12,000,000円（発注者側）', time:'約13分',
+  desc:'あなたは情報システム部門と組む法務担当。基幹システムの開発をベンダに頼み、代金の大半を払ったのに、検収テストで基本機能が動かない。',
+  notes:{ rule:{title:'📘 要所ノート ― システム開発と「完成」の争い', body:`システム開発の争いの中心は「何を作る約束だったか」と「どこまでできれば完成か」です。要件定義書、仕様書、議事録が、完成すべき姿を決める資料になります。\n実務では、ベンダのプロジェクト管理義務と、発注者側の協力義務が対になって論じられます。仕様変更があったかどうかは、議事録や変更管理の記録に残っているかが決め手になることが多く、口頭のやり取りだけでは認定が難しくなります。`} },
+  knowledge:[
+    '<b>「完成」は要件定義と仕様で決まる。</b>議事録と変更管理の記録が、裁判の土台になる。',
+    '<b>ベンダの管理義務と発注者の協力義務は対。</b>自社の協力不足も、相手の主張材料になる。',
+    '<b>検収は形だけ済ませない。</b>テスト結果のレポートが、不適合の記録になる。',
+    '<b>仕様変更は合意の記録が命。</b>「言った」だけの変更は、後で必ず争いになる。',
+    '<b>まず追完（直させる）を求める手順が基本。</b>解除や返還の前に、直す機会の記録が効く。'],
+  endings:{
+    settle360:{title:'和解（3,600,000円の返還）', amount:3600000, body:'ベンダの提示360万円の返還で和解した。再開発の費用を考えると、厳しい決着だった。'},
+    settle580:{title:'交渉で和解（5,800,000円の返還）', amount:5800000, body:'逆提案で当初の提示から220万円上がった和解。'},
+    judgeSettle:{title:'裁判上の和解（7,400,000円）', amount:7400000, body:'裁判官の和解案740万円で終了。議事録の整理が水準を押し上げた。'}},
+  verdict:{mode:'award', items:[
+    {label:'支払済み開発費の返還分', claimed:9000000, stat:'evcl', hi:9, lo:6, amounts:[8200000,5400000,1800000], why:'要件定義と議事録から「約束した姿」を示せたかが分けた。'},
+    {label:'違約金・追加損害分', claimed:3000000, stat:'cl', hi:6, lo:4, amounts:[2200000,900000,0], why:'ベンダに直す機会を与えた経緯など、手順の正しさが影響した。'}]},
+  scenes:{
+    intro:{phase:'発端', title:'検収テストの結果', text:`基幹システムの検収テストが終わった。主要な画面が想定通り動かず、業務で使える状態ではない。一方、開発費1,500万円のうち900万円は支払い済みだ。ベンダの担当者は言った。「仕様変更が多かったもので」。`, doc:`【状況】\n契約金額 15,000,000円\n支払済み 9,000,000円\n検収 未了（基本機能に不具合）`, choices:[{label:'契約書と議事録を集め、状況を整理する', next:'s2'}]},
+    s2:{phase:'初動', title:'ベンダへの最初の対応', text:`まだ検収は終わっていません。最初の対応の順番が大事です。`, noteKey:'record', choices:[
+      {label:'書面で、不具合の一覧と追完（修理）を求める', small:'まず直す機会を作る形', fx:{cl:2,ev:1}, flag:'repairDemand', result:'ベンダは「対応を検討する」と返しました。不具合一覧と日付が記録に残りました。', review:'追完を求める書面は、手順と不適合の両方を固定する。', next:'s3'},
+      {label:'いきなり契約解除と返金を通知する', small:'強い出方', fx:{cl:1,tr:-1}, result:'ベンダは「検収前の解除は認めない」と態度を硬化させました。', review:'強い手段は早いが、手順を問われる場面で不利になりうる。', next:'s3'},
+      {label:'経営層同士の協議を先に申し入れる', small:'関係から入る', fx:{tr:1,cl:1}, result:'協議の場は持てましたが、技術的な争点は整理されないままでした。', review:'トップ協議は関係に効く。技術の争点整理は別に必要。', next:'s3'}]},
+    s3:{phase:'証拠集め', title:'「約束した姿」を示す資料', text:`完成の姿は、資料の中にしかありません。`, choices:[
+      {label:'要件定義書と仕様書を、契約書と照らして確認する', fx:{cl:2}, result:'基本機能の要件が、文書ではっきり書かれている箇所が見つかりました。', review:'要件の文書が、完成の物差しになる。', next:'s4'},
+      {label:'開発中の議事録を全部集め、変更の合意を追う', fx:{ev:2}, flag:'minutes', result:'仕様の話は多いものの「変更に合意した」という記録は見つかりませんでした。', review:'変更合意の記録の有無は、この事件の中心。', next:'s4'},
+      {label:'検収テストの結果レポートを正式に作る', fx:{ev:1,cl:1}, result:'動かない機能と、業務への影響がレポートに残りました。', review:'検収レポートは、不適合の内容を固定する。', next:'s4'}]},
+    s4:{phase:'ルールを調べる', title:'請負か、準委任か', text:`開発契約の性質と、双方の義務を確認します。`, noteKey:'rule', choices:[
+      {label:'顧問弁護士と、契約の性質と義務の整理をする', fx:{cl:2}, result:'「ベンダの管理義務と、自社の協力義務が対になります」と全体像が示されました。', review:'義務の地図を持つと、自社の弱点も先に見える。', next:'s5'},
+      {label:'契約書の条文を自社で精読する', fx:{cl:1,ev:1}, result:'検収と解除の条項はありましたが、変更管理の定めは曖昧でした。', review:'変更管理の曖昧さは、争いの火種そのもの。', next:'s5'}]},
+    s5:{phase:'交渉', title:'請求の置き方', text:`ベンダに要求を伝えます。`, noteKey:'negotiation', choices:[
+      {label:'支払済みの返還と違約金を含め、1,200万円を請求する', fx:{cl:1}, flag:'demandFull', result:'ベンダは「変更作業分が未払いだ」と逆に主張してきました。', review:'全額請求はアンカー。相手の反対請求への備えが要る。', next:'s6'},
+      {label:'追完の期限を切り、応じなければ返還に移ると伝える', fx:{cl:2}, flag:'repairFirst', result:'ベンダは期限への明言を避けました。その経緯自体が記録になりました。', review:'期限を切った追完要求は、手順の正しさを作る。', next:'s6'},
+      {label:'完成分の出来高を認め、残りの精算を求める', fx:{cl:1,tr:1}, flag:'demandPartial', result:'ベンダの態度は少し柔らかくなりました。出来高の線引きが争いになります。', review:'出来高を認める進め方は具体的。線引きの資料が要る。', next:'s6'}]},
+    s6:{phase:'交渉', title:'ベンダからの提案', doc:`「既払いの3割、360万円の返還で終わりにしませんか。追加費用をいただければ完成もさせます」`, text:`提案が来ました。`, choices:[
+      {label:'360万円の返還で和解する', fx:{}, ending:'settle360', review:'早期の和解は、再開発への移行は早い。'},
+      {label:'900万円の返還なら和解すると逆提案する', fx:{}, result:'ベンダが役員と相談することになりました。', review:'逆提案は議事録の材料があるほど通りやすい。', next:'s6b'},
+      {label:'断って、手続を考える', fx:{}, review:'交渉の場を離れる選択。', next:'s8'}]},
+    s6b:{phase:'交渉', title:'逆提案の結果', doc:`「580万円が限度です」`, text:`返答がありました。`, choices:[
+      {label:'580万円の返還で和解する', fx:{}, ending:'settle580', review:'当初の提示から220万円動かした和解。'},
+      {label:'断って、手続を考える', fx:{}, review:'確実さを手放す選択。', next:'s8'}]},
+    s8:{phase:'手続', title:'技術の争いの場', text:`請求額は1,200万円。技術的な争点が多い事件です。`, noteKey:'procedure', choices:[
+      {label:'通常訴訟を提起する', fx:{cl:1}, result:'訴状では、要件と実装の対応を表で示す形にしました。', review:'技術の争いは、対応表の分かりやすさが効く。', next:'s9'},
+      {label:'民事調停を申し立てる', small:'話し合いでの解決を探る', fx:{tr:1,cl:1}, result:'調停では技術論は深まらず、金額も折り合いませんでした。', review:'調停は合意の場。技術の認定は訴訟の役割。', next:'s9'},
+      {label:'専門家の意見書を取り、訴訟に備える', fx:{ev:2}, result:'第三者の技術者から、不具合の原因についての意見書が取れました。', review:'専門家意見は、技術の争いの翻訳になる。', next:'s9'}]},
+    s9:{phase:'証拠', title:'審理に出す中心資料', text:`要件・変更・不具合の3つをどう示すか。`, noteKey:'proof', choices:[
+      {label:'要件定義と実装状況の対応表を中心に出す', fx:{cl:2,ev:1}, result:'約束と現実の差が、一目で見える形になりました。', review:'対応表は、開発紛争の中心資料になる。', next:'s10'},
+      {label:'議事録の時系列を中心に出す', fx:{ev:2}, result:'変更の合意がない経緯が並びました。', review:'時系列は、変更管理の争いに効く。', next:'s10'},
+      {label:'検収レポートを中心に出す', fx:{ev:1,cl:1}, result:'動かない事実は示せましたが、約束との対応は別で支える必要があります。', review:'現実の資料と、約束の資料は役割が違う。', next:'s10'}]},
+    s10:{phase:'相手の主張', title:'「仕様変更を繰り返したのは御社だ」', text:`ベンダ側は主張しました。「要件が次々変わり、追加作業が発生した。完成しないのは発注者側の協力不足だ」。反論の軸を選びます。`, choices:[
+      {label:'変更に合意した記録がないことを、議事録で反論する', fx:{cl:2,ev:1}, result:'変更管理の記録の空白が、争いの中心になりました。', review:'合意の記録の有無は、変更の争いの正面。', next:'s11'},
+      {label:'やり取りは要件の具体化の範囲だったと反論する', fx:{cl:1,ev:1}, result:'個々のやり取りが、要件定義の範囲かどうかで争われました。', review:'具体化か変更かの線引きは、実務でも難しい争点。', next:'s11'},
+      {label:'ベンダのプロジェクト管理義務を軸に反論する', fx:{cl:2}, result:'変更の影響を早い段階で警告すべきだったという話になりました。', review:'ベンダの管理義務は、協力義務への対抗軸になる。', next:'s11'}]},
+    s11:{phase:'裁判官からの質問', title:'「完成とは、何をもって言うのですか？」', text:`期日。核心の質問です。`, noteKey:'credibility', choices:[
+      {label:'要件定義書の該当箇所を指し、検収テストの項目と結びつけて答える', fx:{tr:2}, result:'文書とテストが結びつき、裁判官が頷きました。', review:'完成の答えは、文書を指せることが何より強い。', next:'s12'},
+      {label:'「業務で使える状態が完成です」と感覚で答える', fx:{tr:-1}, result:'「その状態を定めた文書はどれですか」と返されました。', review:'感覚の答えは、文書を問われると弱くなる。', next:'s12'},
+      {label:'自社の協力が遅れた部分は認め、本丸の機能の話だと限定して答える', fx:{tr:1,cl:1}, result:'認める部分と本丸が分かれ、話が具体的になりました。', review:'限定して認める答えは、全体の信用を守る。', next:'s12'}]},
+    s12:{phase:'和解勧告', title:'判決か、和解か', preNoteKey:'negotiation', text:`裁判官から和解案が示されました。「740万円の返還でまとめる案を考えています」`, choices:[
+      {label:'和解案を受け入れる（740万円）', fx:{}, ending:'judgeSettle', review:'確実な決着。再開発への移行も早くなる。'},
+      {label:'受け入れず、判決をもらう', fx:{}, ending:'verdict', review:'判決では要件と議事録の評価がそのまま金額になる。'}]}
+  }
+});
+
+/* ============ 企業3：競業・営業秘密 ============ */
+CASES.push({
+  id:'kyogyo', icon:'🔒', title:'元社員と消えた顧客リスト', cat:'企業法務', claim:6000000, claimLabel:'損害賠償請求 6,000,000円（会社側）', time:'約13分',
+  desc:'あなたはメーカーの法務担当。退職した営業部長が競業会社へ移り、主要顧客が次々と流れ始めた。退職前に顧客リストを私物USBへコピーしたログが残っている。',
+  notes:{ rule:{title:'📘 要所ノート ― 営業秘密の3要件と競業避止', body:`不正競争防止法の「営業秘密」は、①秘密として管理されていること、②事業に有用な情報であること、③公然と知られていないこと、の3つを満たす情報です（2条6項）。管理の実態――アクセス制限や「社外秘」の表示など――がなければ、そもそも営業秘密になりません。\n退職後の競業を止めるには特約が必要で、その有効性は、期間・地域・業務の範囲や、代償の有無などで判断されます。証拠の面では、退職前のアクセスログの保全が時間との勝負になります。`} },
+  knowledge:[
+    '<b>営業秘密は3要件。</b>秘密管理性・有用性・非公知性。管理の実態がなければ始まらない。',
+    '<b>競業避止の特約は範囲で有効性が変わる。</b>期間・地域・業務・代償が物差し。',
+    '<b>初動は証拠保全。</b>アクセスログは時間が経つと消える。警告より先に保全する場面がある。',
+    '<b>差止めはスピードの手続。</b>仮処分は、本案判決を待てない場合の道具。',
+    '<b>顧客の移動そのものは自由競争でもある。</b>「情報の使い方」が違法性の分かれ目。'],
+  endings:{
+    settle100:{title:'和解（1,000,000円）', amount:1000000, body:'元社員側の提示100万円で和解した。顧客の流れは止まらず、厳しい決着だった。'},
+    settle220:{title:'交渉で和解（2,200,000円）', amount:2200000, body:'逆提案で当初の提示から120万円上がり、今後の接触をしない約束も付けた。'},
+    judgeSettle:{title:'裁判上の和解（3,300,000円）', amount:3300000, body:'裁判官の和解案330万円で終了。ログの保全が水準を押し上げた。'}},
+  verdict:{mode:'award', items:[
+    {label:'流れた顧客分の逸失利益', claimed:4500000, stat:'ev', hi:5, lo:3, amounts:[3600000,1900000,500000], why:'リストの使用と顧客の移動の結びつきを示せたかが分けた。'},
+    {label:'競業避止・秘密保持違反の損害', claimed:1500000, stat:'cl', hi:6, lo:4, amounts:[1200000,500000,0], why:'誓約の内容と、秘密管理の実態を示せたかで変わった。'}]},
+  scenes:{
+    intro:{phase:'発端', title:'顧客からの電話', text:`主要顧客の購買担当から電話があった。「先月退職した営業部長が、競合の名刺で営業に来た。うちの購入条件まで知っていた」。情報システム部門に確認すると、部長が退職直前に顧客リストを私物USBへコピーしたログが残っていた。`, doc:`【状況】\n退職者 元営業部長（競業会社へ転職）\n流れた顧客 主要先 4社\n想定損害 6,000,000円`, choices:[{label:'初動の方針を決める', next:'s2'}]},
+    s2:{phase:'初動', title:'警告が先か、保全が先か', text:`相手に知られれば、証拠が消えるかもしれません。初動の順番を決めます。`, noteKey:'record', choices:[
+      {label:'まずアクセスログやデータの保全を静かに進める', small:'証拠の確保を優先する', fx:{ev:2}, flag:'preserved', result:'ログと接続記録が保全できました。相手はまだ、こちらの動きに気づいていません。', review:'営業秘密の事件は、保全の速さが後の全てを作る。', next:'s3'},
+      {label:'すぐに内容証明で警告する', small:'牽制は早いが、証拠は相手に意識される', fx:{cl:2,tr:-1}, flags:['record'], result:'警告は届きましたが、その後のデータの動きは追いにくくなりました。', review:'警告は牽制になる。保全より先だと、証拠が細ることがある。', next:'s3'},
+      {label:'本人とまず話し合いの場を持つ', small:'関係から入る', fx:{tr:1}, result:'本人は「個人的な付き合いだ」と言い、核心には触れませんでした。', review:'話し合いは情報が取れることもある。本格的な保全は別に要る。', next:'s3'}]},
+    s3:{phase:'証拠集め', title:'秘密管理の実態を固める', text:`リストが「営業秘密」と言えるかは、管理の実態にかかっています。`, choices:[
+      {label:'アクセス制限の記録と「社外秘」の表示の実態を集める', fx:{cl:2,ev:1}, flag:'secretMgmt', result:'リストは権限者のみアクセスでき、社外秘の表示もありました。管理の形は示せそうです。', review:'秘密管理性は、制限と表示の実態で示す。', next:'s4'},
+      {label:'退職時の誓約書と就業規則を確認する', fx:{cl:2}, result:'退職時の秘密保持の誓約書がありました。競業については範囲の記載が曖昧な部分もあります。', review:'誓約書は土台。競業の範囲の曖昧さは相手の攻撃点になる。', next:'s4'},
+      {label:'流れた顧客への接触の経緯を、顧客から聞き取る', fx:{ev:2}, result:'複数社から「条件を知った上での提案だった」という話が取れました。', review:'顧客側の話は、リスト使用の推認材料になる。', next:'s4'}]},
+    s4:{phase:'ルールを調べる', title:'営業秘密と言えるか', text:`不正競争防止法の物差しを確認します。`, noteKey:'rule', choices:[
+      {label:'顧問弁護士と、3要件の当てはめを協議する', fx:{cl:2}, result:'「管理性が示せれば戦える。競業の特約は範囲が争点」と整理されました。', review:'要件ごとに資料を対応させることが、この事件の型。', next:'s5'},
+      {label:'社内で管理規程と実態の差を洗い出す', fx:{cl:1,ev:1}, result:'規程はあるものの、運用が緩かった部署も見つかりました。弱点の先行把握です。', review:'自社の弱点を先に知ることは、反論への備えになる。', next:'s5'}]},
+    s5:{phase:'交渉', title:'要求の置き方', text:`元社員側（代理人弁護士）へ要求を伝えます。`, noteKey:'negotiation', choices:[
+      {label:'使用の差止めと、損害600万円を請求する', fx:{cl:1}, flag:'demandFull', result:'相手は「顧客は人間関係で動いた」と反論してきました。', review:'差止めと金銭をセットで置くのが、この事件の基本形。', next:'s6'},
+      {label:'まずリストの使用停止と返還・削除を優先する', fx:{cl:1,tr:1}, flag:'demandPartial', result:'削除の約束については協議の余地が見えました。金額はこれからです。', review:'被害の拡大を止める要求は、金銭より優先する場面がある。', next:'s6'},
+      {label:'顧客への接触の経緯の説明を先に求める', fx:{ev:1}, result:'相手の説明は「記憶で訪問した」というものでした。ログとの差が残ります。', review:'説明を先に出させると、ログとの矛盾が争点になる。', next:'s6'}]},
+    s6:{phase:'交渉', title:'相手側からの提案', doc:`「顧客の移動は本人の人間関係によるものですが、解決金100万円なら用意します」`, text:`相手の代理人から提案が来ました。`, choices:[
+      {label:'100万円で和解する', fx:{}, ending:'settle100', review:'早期の和解は、顧客の流れという被害を置いていく形。'},
+      {label:'450万円と接触禁止の約束なら和解すると逆提案する', fx:{}, result:'相手が持ち帰りました。', review:'逆提案はログの材料があるほど通りやすい。', next:'s6b'},
+      {label:'断って、手続を考える', fx:{}, review:'交渉の場を離れる選択。', next:'s8'}]},
+    s6b:{phase:'交渉', title:'逆提案の結果', doc:`「220万円と、今後のリスト使用をしない約束までが限度です」`, text:`返答がありました。`, choices:[
+      {label:'220万円で和解する', fx:{}, ending:'settle220', review:'金額と約束をセットで取った和解。'},
+      {label:'断って、手続を考える', fx:{}, review:'確実さを手放す選択。', next:'s8'}]},
+    s8:{phase:'手続', title:'スピードの手続も視野に', text:`顧客の流出は続いています。判決を待つだけが手続ではありません。`, choices:[
+      {label:'使用差止めの仮処分と、本案訴訟を進める', small:'速さと本案の両立を狙う', fx:{cl:2}, result:'仮処分の申立てでは、ログと管理の資料が中心になりました。', review:'仮処分はスピードの道具。疎明の資料が要る。', next:'s9'},
+      {label:'本案訴訟のみを提起する', fx:{cl:1}, result:'腰を据えた立証の形になりました。時間はかかります。', review:'本案のみは確実だが、流出の時間は止まらない。', next:'s9'},
+      {label:'民事調停で話し合う', small:'関係の着地点を探る', fx:{tr:1,cl:1}, result:'話し合いでは金額が折り合いませんでした。争点は整理されました。', review:'調停は合意の場。差止めの緊急性とは相性が分かれる。', next:'s9'}]},
+    s9:{phase:'証拠', title:'審理に出す中心資料', text:`ログ・管理・顧客の移動をどう結ぶか。`, noteKey:'proof', choices:[
+      {label:'アクセスログと顧客の移動時期を対応させて出す', fx:{ev:2,cl:1}, result:'コピーの時期と、顧客への営業の時期が並んで見える形になりました。', review:'時期の対応は、使用の推認の中心になる。', next:'s10'},
+      {label:'秘密管理の実態の資料を中心に出す', fx:{cl:2,ev:1}, result:'管理性は示せましたが、使用の話は別で支える必要があります。', review:'管理性は入口の要件。使用の立証とは役割が違う。', next:'s10'},
+      {label:'誓約書と就業規則を中心に出す', fx:{cl:1,ev:1}, result:'約束の存在は示せましたが、損害との結びつきは弱いままです。', review:'約束の資料は土台。損害は移動の資料が支える。', next:'s10'}]},
+    s10:{phase:'相手の主張', title:'「リストではない。人間関係だ」', text:`元社員側は主張しました。「顧客が移ったのは長年の人間関係だ。リストの記憶ぐらいは誰にでもある」。反論の軸を選びます。`, choices:[
+      {label:'退職直前の大量コピーのログを示して反論する', fx:{ev:2,cl:1}, result:'記憶では説明しにくい量と時期のコピーが、争いの中心になりました。', review:'ログの量と時期は「記憶」への正面の反論になる。', next:'s11'},
+      {label:'顧客の購入条件まで知っていた事実を軸に反論する', fx:{ev:1,cl:1}, result:'条件を知らなければできない提案の内容が並びました。', review:'情報の具体性は、使用の推認を強くする。', next:'s11'},
+      {label:'秘密管理の実態を改めて整理して反論する', fx:{cl:2}, result:'管理性の土台が固まりました。使用の話はログが支えます。', review:'要件ごとに軸を分ける反論は、全体を崩れにくくする。', next:'s11'}]},
+    s11:{phase:'裁判官からの質問', title:'「その情報、本当に秘密として管理されていましたか？」', text:`期日。営業秘密の入口の質問です。`, noteKey:'credibility', choices:[
+      {label:'アクセス制限と社外秘表示の実態を、資料を指して具体的に答える', fx:{tr:2}, result:'管理の実態と資料が一致し、裁判官が頷きました。', review:'管理性の答えは、実態を資料で指せることが強い。', next:'s12'},
+      {label:'「会社の大事な情報ですから、当然秘密です」と答える', fx:{tr:-1}, result:'「大事さではなく、管理の実態を聞いています」と返されました。', review:'大事さと管理性は別の物差し。混同すると崩れる。', next:'s12'},
+      {label:'運用が緩かった部分は認め、このリストについては管理があったと限定して答える', fx:{tr:1,cl:1}, result:'認める部分と本丸が分かれ、話が具体的になりました。', review:'限定して認める答えは、本丸の信用を守る。', next:'s12'}]},
+    s12:{phase:'和解勧告', title:'判決か、和解か', preNoteKey:'negotiation', text:`裁判官から和解案が示されました。「330万円の支払いと、リスト使用をしない約束でまとめる案を考えています」`, choices:[
+      {label:'和解案を受け入れる（330万円＋約束）', fx:{}, ending:'judgeSettle', review:'金額と将来の約束をセットで得る和解。'},
+      {label:'受け入れず、判決をもらう', fx:{}, ending:'verdict', review:'判決では管理性と使用の評価がそのまま金額になる。'}]}
+  }
+});
+/* ============ 企業4：商標 ============ */
+CASES.push({
+  id:'shohyo', icon:'🏷️', title:'似すぎている新商品名', cat:'企業法務', claim:5000000, claimLabel:'商標権侵害に基づく請求 5,000,000円（権利者側）', time:'約13分',
+  desc:'あなたは消費財メーカーの法務担当。自社の登録商標と似た名前で、競合がよく似た商品を発売した。警告しても販売は止まらない。',
+  notes:{ rule:{title:'📘 要所ノート ― 商標権と損害額の推定', body:`商標権は特許庁への登録で発生し、登録商標と似た商標を似た商品に使うことを止めさせられます（差止めは商標法36条）。似ているかどうかは、見た目（外観）、読み方（称呼）、意味（観念）と、取引の実情を合わせて判断されます。\n損害額については商標法38条に推定の仕組みがあり、侵害した側の利益額や、ライセンス料に相当する額などを損害として主張できます。「実際にいくら損をしたか」をゼロから示す必要はない代わりに、相手の販売の規模を示す資料が金額を動かします。`} },
+  knowledge:[
+    '<b>商標権は登録が土台。</b>登録証と指定商品が、権利の範囲を決める。',
+    '<b>類否は外観・称呼・観念＋取引の実情。</b>読み方が同じだと似ているとされやすい。',
+    '<b>損害額には推定規定（商標法38条）。</b>相手の販売規模の資料が金額を動かす。',
+    '<b>混同の実例は強い。</b>顧客の誤認のメールや問い合わせが、抽象論を具体化する。',
+    '<b>証拠は消える前に買って残す。</b>相手商品のサンプル購入とページ保存が初動。'],
+  endings:{
+    settle50:{title:'和解（500,000円）', amount:500000, body:'名称は来期から変更、金銭は50万円で和解した。販売はしばらく続く形になった。'},
+    settle160:{title:'交渉で和解（1,600,000円＋名称変更）', amount:1600000, body:'逆提案で金額と名称変更の時期を取り付けた和解。'},
+    judgeSettle:{title:'裁判上の和解（2,400,000円＋名称変更）', amount:2400000, body:'裁判官の和解案で終了。混同の実例が水準を押し上げた。'}},
+  verdict:{mode:'award', items:[
+    {label:'侵害期間の損害', claimed:3800000, stat:'ev', hi:5, lo:3, amounts:[3200000,1900000,600000], why:'相手の販売の規模と期間を示せたかが、分けた。'},
+    {label:'ブランド毀損分', claimed:1200000, stat:'cl', hi:6, lo:4, amounts:[900000,400000,0], why:'類否と混同の実例を主張できたかで変わった。'}]},
+  scenes:{
+    intro:{phase:'発端', title:'店頭で見た、似た名前', text:`営業から報告があった。競合が今月出した新商品の名前が、自社の主力商品の登録商標と読み方が同じで、パッケージの色遣いも近い。店舗の棚では、すぐ隣に並んでいるという。`, doc:`【状況】\n自社の登録商標 あり（主力商品）\n相手の商品 発売から約3か月\n販売 チャネルは全国の小売とEC`, choices:[{label:'初動の方針を決める', next:'s2'}]},
+    s2:{phase:'初動', title:'警告が先か、証拠が先か', text:`相手に知られれば、ページや表示が変わるかもしれません。`, noteKey:'record', choices:[
+      {label:'まず相手商品を購入し、広告ページを保存してから動く', small:'証拠の保全を優先', fx:{ev:2}, flag:'boughtSample', result:'商品サンプルと、ECページ・広告の保存ができました。販売の規模の手がかりも掴めました。', review:'知財の初動は保全。表示は警告した瞬間に変わりうる。', next:'s3'},
+      {label:'すぐに内容証明で警告書を送る', small:'牽制は早いが表示は変わりうる', fx:{cl:2,tr:-1}, flags:['record'], result:'警告は届きました。相手はページの一部を変更し始めました。', review:'警告は牽制になる。保全より先だと使用の姿が細ることがある。', next:'s3'},
+      {label:'業界の知人を介して、まず話を聞く', small:'関係から入る', fx:{tr:1}, result:'相手は「社内で決めた名前だ」と言っているとのことでした。核心の資料はまだありません。', review:'探りは情報になる。本格的な保全は別に必要。', next:'s3'}]},
+    s3:{phase:'証拠集め', title:'権利と混同を固める', text:`権利の範囲と、実際の混同の両方が必要です。`, choices:[
+      {label:'登録証と指定商品を確認し、相手商品との対応を整理する', fx:{cl:2}, result:'指定商品が相手の商品分野と重なることが確認できました。', review:'権利の範囲の確認が、全ての主張の土台になる。', next:'s4'},
+      {label:'混同の実例を集める（誤発注・問い合わせの記録）', fx:{ev:2}, flag:'confusion', result:'取引先からの「間違えて発注した」というメールが2件見つかりました。', review:'混同の実例は、類否の議論を具体化する。', next:'s4'},
+      {label:'相手の販売規模の資料を集める（店舗数・ECの表示）', fx:{ev:1,cl:1}, result:'取扱店舗の数と、広告の出稿の規模が見えてきました。', review:'販売規模は、損害額の推定の材料になる。', next:'s4'}]},
+    s4:{phase:'ルールを調べる', title:'類否の物差しと損害の推定', text:`商標法の物差しを確認します。`, noteKey:'rule', choices:[
+      {label:'顧問弁護士（弁理士）と、類否の見通しを協議する', fx:{cl:2}, result:'「称呼が同じで、商品も近い。戦える類型です」と整理されました。', review:'類否の見通しは、要求の強さを決める。', next:'s5'},
+      {label:'登録の経緯と使用実績を社内で洗い出す', fx:{cl:1,ev:1}, result:'自社の使用実績の資料が揃いました。周知性の話にも使えます。', review:'使用実績は、権利の強さの裏付けになる。', next:'s5'}]},
+    s5:{phase:'交渉', title:'要求の置き方', text:`競合に要求を伝えます。`, noteKey:'negotiation', choices:[
+      {label:'使用の差止めと、損害500万円を請求する', fx:{cl:1}, flag:'demandFull', result:'相手は「似ていない」と反論してきました。販売は続いています。', review:'差止め＋金銭が、この事件の基本形。', next:'s6'},
+      {label:'名称変更の期限をまず示し、金銭は協議とする', fx:{cl:1,tr:1}, flag:'demandPartial', result:'名称変更については協議の余地が見えました。', review:'将来の停止を先に取る進め方は、被害の拡大を止める。', next:'s6'},
+      {label:'ライセンスでの解決の余地を見せる', fx:{ev:1,cl:1}, result:'相手の費用感と、こちらの考える使用料の差が見えてきました。', review:'ライセンスの物差しは、損害額の主張にも使える。', next:'s6'}]},
+    s6:{phase:'交渉', title:'競合からの提案', doc:`「名称は来期から変更します。金銭については50万円が限度です」`, text:`提案が来ました。`, choices:[
+      {label:'50万円で和解する', fx:{}, ending:'settle50', review:'名称変更は得たが、金銭は大きく譲る形。'},
+      {label:'380万円と速やかな名称変更なら和解すると逆提案する', fx:{}, result:'相手が経営会議にかけるとのことでした。', review:'逆提案は混同の実例があるほど通りやすい。', next:'s6b'},
+      {label:'断って、手続を考える', fx:{}, review:'交渉の場を離れる選択。', next:'s8'}]},
+    s6b:{phase:'交渉', title:'逆提案の結果', doc:`「160万円と、3か月以内の名称変更までです」`, text:`返答がありました。`, choices:[
+      {label:'160万円で和解する', fx:{}, ending:'settle160', review:'金額と名称変更の時期を取り付けた和解。'},
+      {label:'断って、手続を考える', fx:{}, review:'確実さを手放す選択。', next:'s8'}]},
+    s8:{phase:'手続', title:'止める手続と、本案', text:`販売は続いています。時間の要素が大きい事件です。`, choices:[
+      {label:'差止めの仮処分と本案訴訟を進める', small:'速さと本案の両立', fx:{cl:2}, result:'仮処分では、類否と混同の資料が中心になりました。', review:'仮処分は販売を止める速さの道具。疎明が要る。', next:'s9'},
+      {label:'本案訴訟のみを提起する', fx:{cl:1}, result:'腰を据えた立証の形になりました。その間も販売は続きます。', review:'本案のみは確実だが、時間の損害は止まらない。', next:'s9'},
+      {label:'民事調停で話し合う', small:'関係と条件の調整', fx:{tr:1,cl:1}, result:'話し合いでは金額が折り合いませんでした。争点は整理されました。', review:'調停は条件の調整には使える。緊急性とは相性が分かれる。', next:'s9'}]},
+    s9:{phase:'証拠', title:'審理に出す中心資料', text:`類否・混同・規模の3つをどう示すか。`, noteKey:'proof', choices:[
+      {label:'混同の実例と、双方の商品の比較をセットで出す', fx:{ev:2,cl:1}, result:'似ている姿と、実際の誤認が並んで見える形になりました。', review:'比較＋実例のセットは、類否の立証の中心。', next:'s10'},
+      {label:'相手の販売規模の資料を中心に出す', fx:{ev:2}, result:'損害の規模は示せましたが、類否は別で支える必要があります。', review:'規模は額の資料。入口の類否とは役割が違う。', next:'s10'},
+      {label:'登録証と自社の使用実績を中心に出す', fx:{cl:2,ev:1}, result:'権利の土台は固まりましたが、混同の具体像は弱いままです。', review:'権利の資料は土台。使用と混同が本丸。', next:'s10'}]},
+    s10:{phase:'相手の主張', title:'「似ていない。混同もない」', text:`競合側は主張しました。「文字の構成は違い、買い手も企業担当者で注意深い。混同は起きていない」。反論の軸を選びます。`, choices:[
+      {label:'読み方（称呼）が同じであることを軸に反論する', fx:{cl:2}, result:'呼び名の同一が、類否の中心になりました。', review:'称呼の同一は、類否で重く見られやすい。', next:'s11'},
+      {label:'実際の誤発注などの混同の実例を軸に反論する', fx:{ev:2}, result:'抽象論ではない混同の姿が示されました。', review:'実例は、取引の実情の主張を具体化する。', next:'s11'},
+      {label:'棚で隣り合う販売の実態を軸に反論する', fx:{ev:1,cl:1}, result:'買い手が接する場面の資料が並びました。', review:'取引の実情は、類否の判断材料の一つ。', next:'s11'}]},
+    s11:{phase:'裁判官からの質問', title:'「実際の混同は、ありましたか？」', text:`期日。類否を具体化する質問です。`, noteKey:'credibility', choices:[
+      {label:'誤発注のメールの内容と時期を、資料に沿って具体的に答える', fx:{tr:2}, result:'具体例と資料が一致し、裁判官が頷きました。', review:'混同の答えは、実例を資料で指せることが強い。', next:'s12'},
+      {label:'「棚で隣にあれば、当然混同します」と答える', fx:{tr:-1}, result:'「当然ではなく、実例で示してください」と返されました。', review:'当然という言葉は、実例の代わりにはならない。', next:'s12'},
+      {label:'混同の実例は2件だと正直に限定し、その質を説明する', fx:{tr:1,cl:1}, result:'件数の少なさを認めた上で、内容の具体性が示されました。', review:'限定した答えは、実例の質の信用を高める。', next:'s12'}]},
+    s12:{phase:'和解勧告', title:'判決か、和解か', preNoteKey:'negotiation', text:`裁判官から和解案が示されました。「240万円の支払いと、速やかな名称変更でまとめる案を考えています」`, choices:[
+      {label:'和解案を受け入れる（240万円＋名称変更）', fx:{}, ending:'judgeSettle', review:'金額と停止をセットで得る和解。'},
+      {label:'受け入れず、判決をもらう', fx:{}, ending:'verdict', review:'判決では類否と規模の評価がそのまま金額になる。'}]}
+  }
+});
+
+/* ============ 企業5：売掛金 ============ */
+CASES.push({
+  id:'urikake', icon:'🧾', title:'払われない売掛金と相殺の主張', cat:'企業法務', claim:4000000, claimLabel:'売掛金等請求 4,000,000円（自社・原告側）', time:'約13分',
+  desc:'あなたはメーカーの法務担当。納入先が売掛金360万円を払わず、「前の納品に不良があったから、損害と相殺する」と言い出した。',
+  notes:{ rule:{title:'📘 要所ノート ― 相殺の仕組みと売掛金の立証', body:`相殺は、互いに同種の債権を持ち合う場合に、一方的な意思表示で対等の額を消滅させる制度です（民法505条）。ただし前提として、相手の言う損害賠償の債権が本当に成立している必要があります。「不良があった」という主張だけでは足りず、不良の範囲と損害の額の裏付けがなければ、相殺の土台は崩れます。\n売掛金側の立証は、発注・納品・検収の記録の線です。相手の財産が散らばる心配がある場合は、本案の前に仮差押えなどの保全も選択肢になります。`} },
+  knowledge:[
+    '<b>相殺は相手の債権の成立が前提。</b>「不良があった」の主張だけでは土台にならない。',
+    '<b>売掛金の立証は発注→納品→検収の線。</b>受領印のある検収書が強い。',
+    '<b>保全（仮差押え）は時間の道具。</b>相手の財産状況が怪しい場合に検討する。',
+    '<b>検収で合格した物への後の不良主張は、時期と範囲が問われる。</b>',
+    '<b>催告の記録は遅延の起点になる。</b>請求日と期日を文字で残す。'],
+  endings:{
+    settle200:{title:'和解（2,000,000円）', amount:2000000, body:'相手の提示200万円で和解した。回収は早いが、不良の主張を大きく飲んだ形になった。'},
+    settle260:{title:'交渉で和解（2,600,000円）', amount:2600000, body:'逆提案で当初の提示から60万円上がった和解。'},
+    judgeSettle:{title:'裁判上の和解（3,000,000円）', amount:3000000, body:'裁判官の和解案300万円で終了。検収の記録が水準を押し上げた。'}},
+  verdict:{mode:'award', items:[
+    {label:'売掛金本体', claimed:3600000, stat:'evcl', hi:9, lo:6, amounts:[3600000,2800000,1200000], why:'発注から検収までの記録の線と、不良の範囲への反論が分けた。'},
+    {label:'遅延損害金分', claimed:400000, stat:'cl', hi:6, lo:4, amounts:[350000,150000,0], why:'催告と支払期日の合意を示せたかで変わった。'}]},
+  scenes:{
+    intro:{phase:'発端', title:'支払期日を過ぎても、入金がない', text:`納入先への売掛金360万円が、期日を1か月過ぎても入金されない。経理から回ってきた相手のメールには、こう書かれていた。`, doc:`「前回納品分に不良があり、当社に損害が発生しております。売掛金とは相殺させていただきます」`, choices:[{label:'発注から検収までの記録を集める', next:'s2'}]},
+    s2:{phase:'初動', title:'相手への最初のアクション', text:`相殺と言われても、不良の内容はまだ何も示されていません。`, noteKey:'record', choices:[
+      {label:'内容証明で、売掛金の支払い催告と、相殺の根拠の提示を求める', fx:{cl:2,ev:1}, flags:['record'], result:'相手から、不良とされるロットの番号だけが返ってきました。損害の計算は出てきません。', review:'催告と根拠要求は、遅延の起点と争点の両方を固定する。', next:'s3'},
+      {label:'まず不良の内容を確かめに、品質部門と同行訪問する', small:'事実確認から入る', fx:{ev:1,tr:1}, result:'不良とされる物は一部ロットで、既に使用済みの物も混じっていました。', review:'事実確認は大事。金額の土台作りは別に必要。', next:'s3'},
+      {label:'経営者同士の協議を申し入れる', small:'関係から入る', fx:{tr:1,cl:1}, result:'協議では「持ち帰る」で終わりました。具体的な根拠は出てきません。', review:'トップ協議は関係に効く。根拠の固定は別作業。', next:'s3'}]},
+    s3:{phase:'証拠集め', title:'納品と検収の線', text:`売掛金の立証は、物の流れの記録です。`, choices:[
+      {label:'発注書・納品書・検収書（受領印）の一式を揃える', fx:{ev:2}, flag:'kenshu', result:'全ロットについて、相手の検収印のある書類が揃いました。', review:'検収印のある記録の線は、売掛金事件の土台。', next:'s4'},
+      {label:'不良とされるロットの検査記録を社内で集める', fx:{ev:1,cl:1}, result:'出荷前の検査では、そのロットは基準内だった記録がありました。', review:'自社の検査記録は、不良の範囲への反論材料になる。', next:'s4'},
+      {label:'相手の支払い状況や財産の動きを調べる', fx:{cl:1,ev:1}, result:'相手は他の仕入先への支払いも遅れている様子が見えてきました。保全の必要性が頭をよぎります。', review:'相手の財産状況は、保全を考える材料になる。', next:'s4'}]},
+    s4:{phase:'ルールを調べる', title:'相殺と言えば、払わなくてよいのか', text:`相殺の仕組みを確認します。`, noteKey:'rule', choices:[
+      {label:'顧問弁護士と、相殺の前提を協議する', fx:{cl:2}, result:'「相手の損害債権が成立するかが実質の争いです」と整理されました。', review:'相殺の事件は、相手の債権の立証不足を突く形になる。', next:'s5'},
+      {label:'契約書の支払条件と検収条項を精読する', fx:{cl:1,ev:1}, result:'検収合格で支払義務が発生する形の条項でした。', review:'契約の支払条件は、立証の線と直結する。', next:'s5'}]},
+    s5:{phase:'交渉', title:'請求の置き方', text:`相手に要求を伝えます。`, noteKey:'negotiation', choices:[
+      {label:'売掛金と遅延損害金を含め、400万円を請求する', fx:{cl:1}, flag:'demandFull', result:'相手は「不良の損害が確定するまで払えない」と繰り返しました。', review:'全額請求はアンカー。相手の債権の不成立をどう示すかが本体。', next:'s6'},
+      {label:'不良ロットの範囲だけ協議し、残額の即時支払いを求める', fx:{cl:1,tr:1}, flag:'demandPartial', result:'相手は範囲の協議に応じる姿勢を見せました。争いが具体化します。', review:'切り分けの提案は、相手の主張の範囲を固定させる。', next:'s6'},
+      {label:'まず損害の内訳と証拠の提示を求める', fx:{ev:1}, result:'相手が出してきた内訳は、大まかな見積だけで、裏付けは乏しいものでした。', review:'内訳を出させることは、相手の土台の弱さの確認になる。', next:'s6'}]},
+    s6:{phase:'交渉', title:'相手からの提案', doc:`「不良分を差し引いて、200万円ならすぐ払います」`, text:`提案が来ました。`, choices:[
+      {label:'200万円で和解する', fx:{}, ending:'settle200', review:'回収は早い。不良の主張を大きく飲む形。'},
+      {label:'340万円なら和解すると逆提案する', fx:{}, result:'相手が社内で検討することになりました。', review:'逆提案は検収の記録があるほど通りやすい。', next:'s6b'},
+      {label:'断って、手続を考える', fx:{}, review:'交渉の場を離れる選択。相手の財産状況も気になる。', next:'s8'}]},
+    s6b:{phase:'交渉', title:'逆提案の結果', doc:`「260万円が限度です」`, text:`返答がありました。`, choices:[
+      {label:'260万円で和解する', fx:{}, ending:'settle260', review:'当初の提示から60万円動かした和解。'},
+      {label:'断って、手続を考える', fx:{}, review:'確実さを手放す選択。', next:'s8'}]},
+    s8:{phase:'手続', title:'保全も視野に入れる', text:`相手の支払い遅延は、他の仕入先にも広がっているようです。`, choices:[
+      {label:'仮差押えの申立てと、本案訴訟を進める', small:'財産の保全を先に取る', fx:{cl:2}, result:'保全の申立てでは、売掛金の記録と相手の状況が中心になりました。', review:'仮差押えは回収の実効性を守る道具。疎明と担保が要る。', next:'s9'},
+      {label:'本案訴訟のみを提起する', fx:{cl:1}, result:'腰を据えた立証の形になりました。回収までの時間は読みにくいです。', review:'本案のみは正面の進め方。財産の動きは止まらない。', next:'s9'},
+      {label:'民事調停を申し立てる', small:'話し合いでの回収を探る', fx:{tr:1,cl:1}, result:'調停では金額が折り合いませんでした。争点は整理されました。', review:'調停は合意の場。財産状況によっては時間が惜しい。', next:'s9'}]},
+    s9:{phase:'証拠', title:'審理に出す中心資料', text:`売掛金の線と、不良の範囲をどう示すか。`, noteKey:'proof', choices:[
+      {label:'発注→納品→検収の記録を時系列で出す', fx:{ev:2,cl:1}, result:'物の流れと検収の合格が、一本の線で見える形になりました。', review:'記録の線は、売掛金事件の中心資料。', next:'s10'},
+      {label:'出荷前検査の記録を中心に出す', fx:{ev:1,cl:1}, result:'基準内だったことは示せましたが、納品後の話は別で支える必要があります。', review:'検査記録は不良への反論。検収の線と組み合わせる。', next:'s10'},
+      {label:'請求と催告の経緯を中心に出す', fx:{cl:1,ev:1}, result:'遅延の経緯は示せましたが、本体の土台は弱いままです。', review:'催告は遅延の資料。本体は物の記録が支える。', next:'s10'}]},
+    s10:{phase:'相手の主張', title:'「不良で損害が出た。だから相殺だ」', text:`相手側は主張しました。「納品に不良があり、代替品の手配で損害が出た。その債権と相殺する」。反論の軸を選びます。`, choices:[
+      {label:'不良の範囲は一部ロットに限られると、検収記録で反論する', fx:{ev:2,cl:1}, result:'全額の相殺という話の土台が崩れ始めました。', review:'範囲の限定は、相殺の額そのものを崩す。', next:'s11'},
+      {label:'損害の額の裏付けがないことを軸に反論する', fx:{cl:2}, result:'相手の内訳の大まかさが、争いの中心になりました。', review:'額の立証不足は、相殺の前提を揺らす。', next:'s11'},
+      {label:'検収で合格していた経緯を軸に反論する', fx:{cl:1,ev:1}, result:'合格の後に不良を言うには、隠れた欠陥の説明が要るという話になりました。', review:'検収の経緯は、相手の説明責任を重くする。', next:'s11'}]},
+    s11:{phase:'裁判官からの質問', title:'「相手の相殺に、根拠がないとまで言えますか？」', text:`期日。言い過ぎが試される質問です。`, noteKey:'credibility', choices:[
+      {label:'「一部ロットの不良自体は争いません。範囲と額の裏付けがない、という主張です」と限定して答える', fx:{tr:2}, result:'争点が範囲と額に絞られ、裁判官が頷きました。', review:'限定した答えは、相殺事件の争点を鋭くする。', next:'s12'},
+      {label:'「不良自体が一切ありません」と断言する', fx:{tr:-1}, result:'「一部は検査記録にも出てきますね」と返されました。', review:'断言しすぎると、ある部分から崩れる。', next:'s12'},
+      {label:'検収の経緯に沿って、合格の範囲を具体的に答える', fx:{tr:1,ev:1}, result:'記録と答えが一致し、話が具体的になりました。', review:'記録に沿った具体性は、心証を強くする。', next:'s12'}]},
+    s12:{phase:'和解勧告', title:'判決か、和解か', preNoteKey:'negotiation', text:`裁判官から和解案が示されました。「300万円の支払いでまとめる案を考えています」`, choices:[
+      {label:'和解案を受け入れる（300万円）', fx:{}, ending:'judgeSettle', review:'回収の確実さを取る和解。'},
+      {label:'受け入れず、判決をもらう', fx:{}, ending:'verdict', review:'判決では相殺の成否がそのまま金額になる。'}]}
+  }
+});
+
+/* ============ 企業6：M&A表明保証 ============ */
+CASES.push({
+  id:'ma', icon:'🤝', title:'買収後に見つかった簿外の債務', cat:'企業法務', claim:20000000, claimLabel:'表明保証違反に基づく補償請求 20,000,000円', time:'約13分',
+  desc:'あなたは事業会社の法務担当。中小メーカーを買収して半年、簿外の未払債務1,500万円が発覚した。株式譲渡契約（SPA）の表明保証と、DDで開示されていたかが争点。',
+  notes:{ rule:{title:'📘 要所ノート ― 表明保証は「リスクの配分表」', body:`M&Aの株式譲渡契約（SPA）では、売主が「財務書類は正確である」などと表明し保証する条項（表明保証）が置かれます。違反があれば、買主は補償を請求できます。\n争いの中心は条項そのものです。補償に上限（キャップ）があるか、請求できる期間（通知期限）が過ぎていないか、買主が知っていた事情は除かれるか（いわゆるサンドバッギングの扱い）。そして「開示されていたか」は、デューデリジェンス（DD）のデータルームに何が入っていたかと、そのアクセス記録で決まります。表明保証は、買主の調査不足を自動的に救うものではなく、リスクをどちらが負うかの約束として読まれます。`} },
+  knowledge:[
+    '<b>表明保証は契約条項が全て。</b>キャップ、通知期限、知識の例外をまず読む。',
+    '<b>クレームは通知期限が命。</b>発覚したら、まず期限内に通知を出す。',
+    '<b>「開示されていたか」はデータルームの記録で決まる。</b>目次とアクセスログが証拠になる。',
+    '<b>DDと表明保証は役割が違う。</b>調査は発見の努力、保証はリスクの配分。',
+    '<b>簿外債務は発生時期が鍵。</b>クロージング前か後かで、保証の射程が変わる。'],
+  endings:{
+    settle300:{title:'和解（3,000,000円）', amount:3000000, body:'売主の提示300万円で和解した。簿外債務の大半は買収した会社に残った。'},
+    settle700:{title:'交渉で和解（7,000,000円）', amount:7000000, body:'逆提案で当初の提示から400万円上がった和解。'},
+    judgeSettle:{title:'和解（11,000,000円）', amount:11000000, body:'和解案1,100万円で終了。開示ログの整理が水準を押し上げた。'}},
+  verdict:{mode:'award', items:[
+    {label:'簿外債務の補償', claimed:15000000, stat:'evcl', hi:9, lo:6, amounts:[13800000,9000000,3000000], why:'債務の発生時期と、DDで開示されていなかったことを示せたかが分けた。'},
+    {label:'調査費用・追加の実害', claimed:5000000, stat:'cl', hi:6, lo:4, amounts:[3600000,1500000,0], why:'通知を期限内に出したかなど、条項の手順を守れたかが影響した。'}]},
+  scenes:{
+    intro:{phase:'発端', title:'買収から半年、見つかった未払い', text:`買収した子会社の経理を調べていた会計士から報告があった。クロージング前から存在したはずの未払債務1,500万円が、決算書類に載っていない。財務書類の正確性は、SPAで売主が表明保証していたはずだ。`, doc:`【状況】\n簿外の未払債務 15,000,000円\n調査費用等の実害 約5,000,000円\nクレーム通知期限 クロージングから12か月（残り約6か月）`, choices:[{label:'SPAの条項と、通知の期限から確かめる', next:'s2'}]},
+    s2:{phase:'初動', title:'期限が一番の敵', text:`補償の請求には、通知の期限があります。初動を決めます。`, noteKey:'record', choices:[
+      {label:'まず期限内に、クレーム通知を書面で出す', small:'内容は追って固める形で、期限を守る', fx:{cl:2,ev:1}, flag:'noticeInTime', result:'通知は期限内に出せました。売主は「DDで開示していたはずだ」と反応してきました。', review:'M&Aのクレームは、通知期限を守ることが全ての前提になる。', next:'s3'},
+      {label:'まず債務の実在を、会計士と完全に固めてから動く', small:'確実だが、時間は過ぎていく', fx:{ev:1}, result:'債務の裏付けは固まりましたが、通知の期限は近づいています。', review:'固める作業と期限の管理は、並行して進めるのが実務。', next:'s3'},
+      {label:'売主の社長にまず電話で話す', small:'関係から入る', fx:{tr:1}, result:'相手は「資料は出していた」と言いました。通知はまだ出ていません。', review:'口頭の話し合いは、通知の代わりにはならない。', next:'s3'}]},
+    s3:{phase:'証拠集め', title:'開示されていたか、を追う', text:`争いの中心は、データルームの中身です。`, choices:[
+      {label:'データルームの資料目次とアクセスログを保全する', fx:{ev:2}, flag:'datalog', result:'目次とログが保全できました。問題の債務に関する資料は、目次に見当たりません。', review:'開示の有無は、目次とログという記録で決まる。', next:'s4'},
+      {label:'開示スケジュール（ディスクロージャー）の記載を確認する', fx:{cl:2}, result:'スケジュールに、この債務への言及はありませんでした。', review:'開示スケジュールは、保証の例外を決める文書。', next:'s4'},
+      {label:'簿外債務の発生時期を、相手先との契約書で確かめる', fx:{ev:1,cl:1}, result:'債務の原因はクロージング前の取引でした。発生時期は示せそうです。', review:'発生時期は、保証の射程を決める。', next:'s4'}]},
+    s4:{phase:'ルールを調べる', title:'条項を読み直す', text:`表明保証の条項、キャップ、知識の例外を確認します。`, noteKey:'rule', choices:[
+      {label:'顧問弁護士と、条項の射程を協議する', fx:{cl:2}, result:'「キャップの範囲内。知識の例外の書き方が争点」と整理されました。', review:'条項の地図を持つと、交渉の天井と床が見える。', next:'s5'},
+      {label:'SPAとDD報告書を自社で精読する', fx:{cl:1,ev:1}, result:'DD報告書には、この債務への言及はありませんでした。', review:'DD報告書は、知っていたかの判断材料になる。', next:'s5'}]},
+    s5:{phase:'交渉', title:'請求の置き方', text:`売主に請求を伝えます。`, noteKey:'negotiation', choices:[
+      {label:'補償の全額、2,000万円を請求する', fx:{cl:1}, flag:'demandFull', result:'売主は「開示していた」の一点で反論してきました。', review:'全額請求はキャップの範囲内でのアンカー。開示の争いが本体。', next:'s6'},
+      {label:'債務本体を中心に請求し、費用は協議とする', fx:{cl:1,tr:1}, flag:'demandPartial', result:'売主は協議に応じる姿勢を見せました。', review:'確実な部分から置く進め方は、協議を具体化する。', next:'s6'},
+      {label:'まず開示の有無についての資料の提示を求め合う', fx:{ev:1}, result:'売主が示したのは、データルームのフォルダ名だけでした。中身の対応は曖昧です。', review:'資料の提示の応酬は、開示の争いの前哨戦になる。', next:'s6'}]},
+    s6:{phase:'交渉', title:'売主からの提案', doc:`「資料はDDで出していました。話し合いとして300万円なら用意します」`, text:`提案が来ました。`, choices:[
+      {label:'300万円で和解する', fx:{}, ending:'settle300', review:'早期の和解は、債務の大半を自社に残す形。'},
+      {label:'1,500万円なら和解すると逆提案する', fx:{}, result:'売主が弁護士と相談することになりました。', review:'逆提案は開示ログの材料があるほど通りやすい。', next:'s6b'},
+      {label:'断って、手続を考える', fx:{}, review:'交渉の場を離れる選択。SPAの紛争解決条項の確認も必要。', next:'s8'}]},
+    s6b:{phase:'交渉', title:'逆提案の結果', doc:`「700万円が限度です」`, text:`返答がありました。`, choices:[
+      {label:'700万円で和解する', fx:{}, ending:'settle700', review:'当初の提示から400万円動かした和解。'},
+      {label:'断って、手続を考える', fx:{}, review:'確実さを手放す選択。', next:'s8'}]},
+    s8:{phase:'手続', title:'紛争解決条項の確認から', text:`SPAには、紛争の解決方法の定めがあることが多い分野です。`, choices:[
+      {label:'条項を確認の上、本案訴訟を提起する', fx:{cl:1}, result:'訴状では、条項・発生時期・未開示の3点を軸にしました。', review:'M&A紛争は、条項の読みが訴訟の設計図になる。', next:'s9'},
+      {label:'契約の仲裁条項に基づき、仲裁を申し立てる', small:'非公開で進む手続', fx:{cl:2}, result:'仲裁では、開示ログの資料が中心になりました。', review:'仲裁は非公開で、専門性のある判断者が選べることがある。', next:'s9'},
+      {label:'調停的な話し合いの場を持つ', fx:{tr:1,cl:1}, result:'話し合いでは金額が折り合いませんでした。争点は整理されました。', review:'話し合いは合意が前提。条項の争いは判断の場の役割。', next:'s9'}]},
+    s9:{phase:'証拠', title:'審理に出す中心資料', text:`開示の有無と、発生時期をどう示すか。`, noteKey:'proof', choices:[
+      {label:'データルームの目次・ログと、債務資料の不在を対応させて出す', fx:{ev:2,cl:1}, result:'「出ていなかったこと」が、記録の形で示せるようになりました。', review:'不在の立証は、目次とログという全体の記録でやる。', next:'s10'},
+      {label:'債務の発生時期の資料を中心に出す', fx:{ev:2}, result:'クロージング前の債務であることは示せましたが、開示の話は別で支える必要があります。', review:'時期と開示は別の立証。役割を分ける。', next:'s10'},
+      {label:'DD報告書と専門家の関与を中心に出す', fx:{cl:1,ev:1}, result:'調査の範囲は示せましたが、開示の有無そのものには届きません。', review:'DDの資料は知識の話の材料。開示はログが中心。', next:'s10'}]},
+    s10:{phase:'相手の主張', title:'「データルームに資料はあった」', text:`売主側は主張しました。「DDのデータルームに取引資料一式は入っていた。見落としたのは買主側の問題だ」。反論の軸を選びます。`, choices:[
+      {label:'目次とログに該当資料がなく、開示スケジュールにも記載がないと反論する', fx:{cl:2,ev:1}, result:'開示の記録の空白が、争いの中心になりました。', review:'開示の反論は、全体の記録で空白を示すのが正面。', next:'s11'},
+      {label:'ファイル名や置き場所から、債務を読み取ることはできなかったと反論する', fx:{cl:1,ev:1}, result:'開示の「分かる形だったか」が争われました。', review:'開示は、存在だけでなく認識可能性も問題になる。', next:'s11'},
+      {label:'表明保証はリスク配分の約束であり、調査の範囲とは別だと反論する', fx:{cl:2}, result:'保証の趣旨そのものが争点になりました。', review:'リスク配分の趣旨は、知っていたかの例外の読み方に効く。', next:'s11'}]},
+    s11:{phase:'判断者からの質問', title:'「買主は、どこまで調べればよかったのですか？」', text:`期日。DDと保証の関係を問う質問です。`, noteKey:'credibility', choices:[
+      {label:'通常のDDの範囲と、専門家を起用した経緯を示して答える', fx:{tr:2}, result:'調査の実態と答えが一致し、頷きが返ってきました。', review:'調べの答えは、範囲と体制を具体的に示すことが強い。', next:'s12'},
+      {label:'「保証があるのだから、調べる必要はありませんでした」と答える', fx:{tr:-1}, result:'「それでも通常の調査はされたのですか」と重ねて聞かれました。', review:'保証を調査の免罪符にする答えは、条項の読みを問われる。', next:'s12'},
+      {label:'調べの弱かった部分は認め、保証でリスクを配分した趣旨だと限定して答える', fx:{tr:1,cl:1}, result:'認める部分と趣旨の主張が分かれ、話が具体的になりました。', review:'限定して認める答えは、趣旨の主張の信用を高める。', next:'s12'}]},
+    s12:{phase:'和解の提示', title:'判断か、和解か', preNoteKey:'negotiation', text:`「1,100万円の補償でまとめる案を考えています」という提示がありました。`, choices:[
+      {label:'案を受け入れる（1,100万円）', fx:{}, ending:'judgeSettle', review:'確実な決着。残りの債務は自社で処理する形。'},
+      {label:'受け入れず、判断をもらう', fx:{}, ending:'verdict', review:'判断では開示と条項の評価がそのまま金額になる。'}]}
+  }
+});
+/*__CASES__*/
+/* ============ エンジン ============ */
+const PROG_KEY='court-app-v1-results', SAVE_KEY='court-app-v1-save';
+const yen=n=>n.toLocaleString('ja-JP')+'円';
+const ORDER=['intro','s2','s3','s4','s5','s6','s6b','s8','s9','s10','s11','s12'];
+let cur=null, sceneId=null, ps=null, pendingResult='', filterCat='すべて';
+const $app=document.getElementById('app'), $top=document.getElementById('topbar');
+function results(){ try{return JSON.parse(localStorage.getItem(PROG_KEY))||{}}catch(e){return{}} }
+function saveResults(r){ localStorage.setItem(PROG_KEY, JSON.stringify(r)); }
+function getNote(k){ if(!k) return null; return (cur && cur.notes && cur.notes[k]) || NOTES[k] || null; }
+function freshPs(){ return {ev:0,cl:0,tr:0,flags:{},log:[]}; }
+
+function renderHome(){
+  cur=null; sceneId=null;
+  const r=results(); const done=Object.keys(r).length;
+  $top.innerHTML=`<div style="font-size:13px;font-weight:700;color:var(--navy)">判決・和解まで到達した事件 ${done} / ${CASES.length}</div><div class="bar"><i style="width:${CASES.length?Math.round(done/CASES.length*100):0}%"></i></div><div class="hintline">自分用アプリ版 ― 事件を選んで遊べます。途中で閉じても、事件ごとに続きから再開できます。</div>`;
+  const cats=['すべて',...new Set(CASES.map(c=>c.cat))];
+  const list=CASES.filter(c=>filterCat==='すべて'||c.cat===filterCat);
+  $app.innerHTML=`
+    <div class="filters">${cats.map(c=>`<button class="fbtn ${c===filterCat?'on':''}" data-cat="${c}">${c}</button>`).join('')}</div>
+    ${list.map(c=>{ const d=r[c.id]; return `<div class="casecard" data-id="${c.id}">
+      <div class="cc-top"><div class="cc-icon">${c.icon}</div>
+      <div><div class="cc-title">${c.title}</div><div class="cc-meta">${c.cat} ／ ${c.claimLabel} ／ ${c.time}</div></div>
+      <div class="cc-status">${d?('✔ 到達<br>'+yen(d.amount)):''}</div></div>
+      <div class="cc-desc">${c.desc}</div>
+      ${d?`<div class="cc-meta">前回の結末：${d.ending}（${d.plays}回プレイ）</div>`:'<div class="cc-meta">未プレイ</div>'}
+    </div>`}).join('')}
+    <div class="toolbar"><button id="resetAll">クリア記録と保存を全部リセット</button></div>`;
+  $app.querySelectorAll('.fbtn').forEach(b=>b.addEventListener('click',()=>{filterCat=b.dataset.cat; renderHome();}));
+  $app.querySelectorAll('.casecard').forEach(el=>el.addEventListener('click',()=>startCase(el.dataset.id)));
+  document.getElementById('resetAll').addEventListener('click',()=>{ if(confirm('記録を全部消しますか？')){ localStorage.removeItem(PROG_KEY); localStorage.removeItem(SAVE_KEY); renderHome(); }});
+}
+
+function startCase(id){
+  cur=CASES.find(c=>c.id===id); ps=freshPs(); sceneId='intro'; pendingResult='';
+  try{ const sv=JSON.parse(localStorage.getItem(SAVE_KEY)); if(sv && sv.caseId===id && sv.sceneId && cur.scenes[sv.sceneId] && sv.ps){ ps=sv.ps; sceneId=sv.sceneId; } }catch(e){}
+  renderScene();
+}
+function savePlay(){ localStorage.setItem(SAVE_KEY, JSON.stringify({caseId:cur.id, sceneId, ps})); }
+function topForCase(){
+  const idx=Math.max(0, ORDER.indexOf(sceneId));
+  $top.innerHTML=`<div style="font-size:13px;font-weight:700;color:var(--navy)">${cur.icon} ${cur.title} ― ${cur.claimLabel}</div><div class="bar"><i style="width:${Math.round(((idx+1)/ORDER.length)*100)}%"></i></div><div class="hintline">選択の数字は表示されません。結果は最後の振り返りで分かります。</div>`;
+}
+function applyChoiceFx(c){
+  let fx=c.fx||{};
+  if(c.fxFn && FXFN[c.fxFn]) fx=FXFN[c.fxFn](ps);
+  ps.ev+=(fx.ev||0); ps.cl+=(fx.cl||0); ps.tr+=(fx.tr||0);
+  if(c.flag) ps.flags[c.flag]=true;
+  if(c.flags) c.flags.forEach(f=>ps.flags[f]=true);
+}
+function renderScene(){
+  topForCase();
+  const s=cur.scenes[sceneId];
+  const pre=getNote(s.preNoteKey);
+  $app.innerHTML=`<section class="card">
+    ${pendingResult?`<div class="result">${pendingResult}</div>`:''}
+    <div class="phase">${s.phase||''}</div><div class="scene-title">${s.title||''}</div>
+    ${s.text?`<div class="text">${s.text}</div>`:''}
+    ${s.doc?`<div class="doc">${s.doc}</div>`:''}
+    ${pre?`<div class="notebox"><div class="ntitle">${pre.title}</div><div class="nbody">${pre.body}</div></div>`:''}
+    <div class="choices">${s.choices.map((c,i)=>`<button class="choice" data-i="${i}">${c.label}${c.small?`<small>${c.small}</small>`:''}</button>`).join('')}</div>
+    <div class="note">どの選択にも、得るものと置いていくものがあります。</div>
+  </section>
+  <div class="toolbar"><button id="toHome">事件一覧へ戻る（進行は保存されます）</button><button id="restartCase">この事件を最初から</button></div>`;
+  pendingResult='';
+  document.getElementById('toHome').addEventListener('click',()=>{ savePlay(); renderHome(); });
+  document.getElementById('restartCase').addEventListener('click',()=>{ ps=freshPs(); sceneId='intro'; localStorage.removeItem(SAVE_KEY); renderScene(); });
+  $app.querySelectorAll('button.choice').forEach(btn=>btn.addEventListener('click',()=>{
+    const c=s.choices[Number(btn.dataset.i)];
+    applyChoiceFx(c);
+    ps.log.push({scene:s.title||'', choice:c.label, review:c.review||''});
+    const go=()=>{ if(c.ending){ renderEnding(c.ending); } else { sceneId=c.next; savePlay(); renderScene(); window.scrollTo({top:0,behavior:'smooth'}); } };
+    const note=getNote(s.noteKey);
+    if(note && !c.ending) showNote(note, c.result||'', go);
+    else { pendingResult=c.result||''; go(); }
+  }));
+}
+function showNote(note, result, go){
+  $top.innerHTML=`<div style="font-size:13px;font-weight:700;color:var(--navy)">${cur.icon} ${cur.title}</div>`;
+  $app.innerHTML=`<section class="card">
+    ${result?`<div class="result">${result}</div>`:''}
+    <div class="notebox" style="margin-top:0"><div class="ntitle">${note.title}</div><div class="nbody">${note.body}</div></div>
+    <div class="choices"><button class="choice" id="cont">次へ進む</button></div></section>`;
+  window.scrollTo({top:0,behavior:'smooth'});
+  document.getElementById('cont').addEventListener('click', go);
+}
+function statVal(key){ if(key==='ev')return ps.ev; if(key==='cl')return ps.cl; if(key==='tr')return ps.tr; if(key==='evcl')return ps.ev+ps.cl; if(key==='evtr')return ps.ev+ps.tr; if(key==='cltr')return ps.cl+ps.tr; return 0; }
+function tierOf(item){
+  if(item.flagGood && ps.flags[item.flagGood]) return 0;
+  if(item.flagMid && ps.flags[item.flagMid]) return 1;
+  if(item.flagGood || item.flagMid) { /* fallthrough to stat if flags set but unmatched */ }
+  const v=statVal(item.stat||'cl'); return v>=(item.hi??6)?0:(v>=(item.lo??4)?1:2);
+}
+function verdictCalc(){
+  const v=cur.verdict; let rows=[], total=0;
+  v.items.forEach(it=>{ const t=tierOf(it); const amt=it.amounts[t]; rows.push({label:it.label, claimed:it.claimed, amt, why:it.why}); total+=amt; });
+  const amount = v.mode==='deduction' ? Math.max(0,(v.base||0)-total) : total;
+  return {rows, total, amount};
+}
+function qual(v,a,b){ return v>=a?'手厚く積めた':(v>=b?'一定の厚みはある':'薄さが残った'); }
+function debrief(){
+  const rows=ps.log.filter(l=>l.review).map(l=>`<div class="review"><b>${l.scene}</b> ― ${l.choice}<div class="rv">${l.review}</div></div>`).join('');
+  return `<div class="qual"><span class="qchip">証拠の積み方：${qual(ps.ev,7,4)}</span><span class="qchip">主張の組み立て：${qual(ps.cl,7,4)}</span><span class="qchip">心証の形成：${qual(ps.tr,3,1)}</span></div>
+  <div class="scene-title" style="font-size:19px;margin-top:18px">あなたの選択の振り返り</div>${rows}
+  <div class="scene-title" style="font-size:19px;margin-top:20px">持ち帰れる知識</div>
+  <ul class="know">${cur.knowledge.map(k=>`<li>${k}</li>`).join('')}</ul>
+  <div class="choices"><button class="choice" id="again">この事件をもう一度遊ぶ</button><button class="choice" id="home2">事件一覧へ戻る</button></div>`;
+}
+function finishRecord(amount, endingTitle){
+  const r=results(); const prev=r[cur.id];
+  r[cur.id]={amount, ending:endingTitle, plays:(prev?prev.plays:0)+1};
+  saveResults(r); localStorage.removeItem(SAVE_KEY);
+}
+function bindEndButtons(){ const a=document.getElementById('again'); if(a) a.addEventListener('click',()=>{ ps=freshPs(); sceneId='intro'; renderScene(); }); const h=document.getElementById('home2'); if(h) h.addEventListener('click', renderHome); }
+function renderEnding(kind){
+  $top.innerHTML=`<div style="font-size:13px;font-weight:700;color:var(--navy)">${cur.icon} ${cur.title} ― 結末</div><div class="bar"><i style="width:100%"></i></div>`;
+  if(kind==='verdict'){
+    const v=verdictCalc(); const isDed=cur.verdict.mode==='deduction'; const isPay=cur.verdict.mode==='payment';
+    finishRecord(v.amount,'判決 '+yen(v.amount));
+    $app.innerHTML=`<section class="card">
+      <div class="phase">判決</div><div class="scene-title">主文</div>
+      <div class="verdict"><span class="tag">主文</span>${isDed?'被告は原告に対し、次の金額を支払え。':(isPay?'原告（業者）の請求について、被告であるあなたは次の金額を支払え。':'原告の請求について、次の金額の支払いを命じる。')}<div class="amount">${yen(v.amount)}</div></div>
+      <div class="scene-title" style="font-size:19px;margin-top:18px">なぜこの金額になったのか</div>
+      <table><tr><th>項目</th><th>${isDed?'請求された控除':'請求額'}</th><th>${isDed?'認められた控除':'認められた額'}</th></tr>
+      ${v.rows.map(r=>`<tr><td>${r.label}</td><td>${yen(r.claimed)}</td><td>${yen(r.amt)}</td></tr>`).join('')}
+      ${isDed?`<tr><td><b>控除 合計</b></td><td></td><td><b>${yen(v.total)}</b></td></tr>`:''}${isPay?`<tr><td><b>支払額 合計</b></td><td></td><td><b>${yen(v.total)}</b></td></tr>`:''}</table>
+      ${v.rows.map(r=>`<div class="text" style="font-size:14px">・${r.label}：${r.why}</div>`).join('')}
+      ${debrief()}</section>`;
+  } else {
+    const e=cur.endings[kind]; finishRecord(e.amount, e.title);
+    $app.innerHTML=`<section class="card">
+      <div class="phase">終了</div><div class="scene-title">エンディング ― ${e.title}</div>
+      <div class="amount">${yen(e.amount)}</div><div class="text">${e.body}</div>
+      ${debrief()}</section>`;
+  }
+  bindEndButtons(); window.scrollTo({top:0,behavior:'smooth'});
+}
+renderHome();
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  });
+}
+</script>
+</body>
+</html>
